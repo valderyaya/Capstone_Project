@@ -118,6 +118,9 @@ class Graph{
             adj.erase(v);
         }
 
+        int get_num_of_vertices(){
+            return adj.size();
+        }
 
         // need to implement contractionInformantion
 };
