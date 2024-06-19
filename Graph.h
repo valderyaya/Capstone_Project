@@ -6,24 +6,25 @@ template<typename T>
 class Graph{
     public:
         unordered_map<T, unordered_set<T>> adj; // adjacencies matrix
-        unordered_map<T, int> vertex_degree;  // log vertex degree, only for undirected graph?
-        int n, m; // vertex and edge number
-        bool logVertexDegree, isDirected;
+        //unordered_map<T, int> vertex_degree;  // log vertex degree, only for undirected graph?
+        int m; // vertex and edge number
+        bool isDirected;
 
-        Graph(bool logEdge, bool Directed): adj(), edgesInNeighborhood(), logEdgesInNeighbourhood(logEdge), isDirected(Directed){}
+        Graph(bool Directed = false): adj(), isDirected(Directed), m(0){}
 
-        Graph(Graph<T> original){
+
+        Graph(bool Directed, int n, int m): adj(), isDirected(Directed), m(m){}
+
+        Graph(const Graph<T> &original){
             isDirected = original.isDirected;
-            logVertexDegree = original.logVertexDegree;
+            //logVertexDegree = original.logVertexDegree;
             adj = original.adj;
-            vertex_degree = original.vertex_degree;
-            n = original.n;
+            //vertex_degree = original.vertex_degree;
             m = original.m;
         }
 
-
         unordered_set<T> get_copy_vertices(){
-            unordered_set ret;
+            unordered_set<T> ret;
             for(auto &i: adj) ret.insert(i.first);
             return ret;
         }
@@ -45,44 +46,78 @@ class Graph{
         // vector<T> get_neighbourhood_as_vector(T v){}
 
 
-        bool is_adjacent(T u, T v){
+        bool is_adjacent(T u, T v){ // work properly in undirected graph
             return adj[u].find(v) != adj[u].end();
         }
 
 
         void add_vertex(T v){
-            if(!adj[v]) vertex_degree[v] = 0;
+            if(adj.find(v) != adj.end()) return;
+            adj[v];
         }
 
 
         void add_directed_edge(T u, T v){
+            isDirected = 1;
+            adj[u].insert(v);
+        }
+
+        void add_half_of_edge(T u, T v){
+            add_vertex(u);
+            add_vertex(v);
+            if(adj[u].find(v) != adj[u].end()) return;
             ++m;
-            adj[u].insert(v); // may not consider multi edge
+            adj[u].insert(v);
         }
 
 
         void add_edge(T u, T v){
-            if(adj[u].find(v) != adj.end()) 
+            if(!isDirected && adj[u].find(v) != adj[u].end()) 
                 return;
             
-            add_directed_edge(u, v);
-            add_directed_edge(v, u);
+            add_half_of_edge(u, v);
+            add_half_of_edge(v, u);
         
-            for(auto &i: adj[u])
-                if(is_adjacent(i, v)){
-                    ++vertex_degree[i];
-                    ++vertex_degree[u];
-                    ++vertex_degree[v];
-                }
+            // for(auto &i: adj[u])
+            //     if(is_adjacent(i, v)){
+            //         ++vertex_degree[i];
+            //         ++vertex_degree[u];
+            //         ++vertex_degree[v];
+            //     }
         }
 
+
+        void remove_directed_edge(T u, T v){
+            isDirected = 1;
+            adj[u].erase(v);
+        }
+
+        void remove_half_of_edge(T u, T v){
+            --m;
+            adj[u].erase(v);
+        }
 
         void remove_edge(T u, T v){
-            
+            remove_half_of_edge(u, v);
+            remove_half_of_edge(v, u);
         }
 
+        int get_num_of_edges(){
+            return m >> 1;
+        }
 
         void remove_vertex(T v){
-            for(auto )
+            if(isDirected){
+                for(auto &it : adj)
+                    if(it->first != v && it->second.find(v) != it->second.end())
+                        it->second.erase(v);
+            }else{
+                for(auto &i : adj[v])
+                    adj[i].erase(v);
+            }
+            adj.erase(v);
         }
+
+
+        // need to implement contractionInformantion
 };
