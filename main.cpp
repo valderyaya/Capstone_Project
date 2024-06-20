@@ -9,11 +9,20 @@ using namespace std;
 #include "TreeDecomposition.h"
 
 int main(){
-    // Graph<int> p, q(1);
-    // p.add_edge(1, 2);
-    // // p.add_vertex(3);
-    // cout <<  ' ' << p.m << ' ' << p.get_num_of_edges() << endl;
-    
+    // testing code
+set<int> s;
+s.insert(1);
+s.insert(2);
+s.insert(3);
+
+set<int> a;
+a.insert(1);
+a.insert(5);
+
+Bag<int> test = Bag<int>(s, 2);
+cout << test.containsAll(a) << ' ' << test.containsAll(s) << endl;
+cout<<test.id<<endl;
+
     TreeDecomposition<Bag<int>> t;
     
     map<set<int>, set<Bag<int>>> mp;

@@ -1,6 +1,7 @@
 #include "Graph.h"
 //#include "Bag.h"
-
+#include<stack>
+#include<set>
 
 template<typename T>
 class TreeDecomposition{
@@ -35,5 +36,80 @@ class TreeDecomposition{
             if(!tree.containsNode(bj)) return;
             if(tree.adj[bi].find(bj) != tree.adj[bi].end()) return;
             tree.add_edge(bi, bj);
+        }
+
+        Bag<T> create_Bag(const set<T> &vertices){
+            Bag<T> bag(vertices, 1 + numOfBags++);
+            tree.add_vertex(bag);
+            if((int)vertices.size() > width) width = (int)vertices.size();
+            return bag;
+        }
+
+        stack<Bag<T>> connectedComponents(T x){
+            stack<Bag<T>> ret;
+            unordered_set<int> vis;
+            for(auto &b : tree){
+                if(!vis.count(b.id) || b.contains(x)) continue;
+                ret.emplace(b);
+                vis.insert(b.id);
+
+                stack<Bag<T>> s;
+                s.emplace(b);
+                while(!s.empty()){
+                    auto v = s.top(); 
+                    s.pop();
+                    for(auto &w : tree.adj[v]){
+                        if(!vis.count(w.id) && w.contains(x)){
+                            vis.insert(w.id);
+                            s.emplace(w);
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+        
+        bool isValid(){
+            // every vertex is in a bag
+            for(auto &v : graph){
+                bool contained = 0;
+                for(auto &b : tree)
+                    if(b.contains(v)){
+                        contained = 1;
+                        break;
+                    }
+                if(!contained){
+                    cerr << "Vertex " << v << " not in bag\n";
+                    return 0;
+                }
+            }
+
+            // every edge is in a bag
+            for(auto &v : graph){
+                for(auto &w : graph.adj[v]){
+                    if(v.compareTo(w) >= 0) continue;
+                    bool contained = 0;
+                    for(auto &b : tree)
+                        if(b.contains(v) && b.contains(w)){
+                            contained = 1;
+                            break;
+                        }
+                    if(!contained){
+                        cerr << "Edge " << v << ", " << w << " not in bag\n";
+                        return 0;
+                    }
+                }
+            }
+
+            // subtrees connected
+            for(auto &v : graph){
+                stack<Bag<T>> s = connectedComponents(v);
+                if(s.size() != 1){
+                    cerr << "Vertex " << v << "is not connected\n";
+                    return 0;
+                }
+            }
+
+            return 1;
         }
 };
