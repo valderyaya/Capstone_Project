@@ -1,11 +1,13 @@
 #include<vector>
 #include<unordered_map>
 #include<unordered_set>
+#include<set>
 
 template<typename T>
 class Graph{
     public:
-        unordered_map<T, unordered_set<T>> adj; // adjacencies matrix
+        map<T, set<T>> adj; // adjacencies matrix
+        //unordered_map<T, unordered_set<T>> adj; // adjacencies matrix
         //unordered_map<T, int> vertex_degree;  // log vertex degree, only for undirected graph?
         int m; // vertex and edge number
         bool isDirected;
@@ -33,7 +35,6 @@ class Graph{
         bool containsNode(T v){
             return adj.find(v) != adj.end();
         }
-
 
         int get_max_degree(){
             int ret = 0;
