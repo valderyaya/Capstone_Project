@@ -8,3 +8,8 @@
 
 - [] Dinic
 
+- the method of saving graph need to optimize
+
+- move FlattenTreeDecomposition.h into TreeDecomposition.h
+
+- in TreeDecomposition.h, connectedComponents() and contractDuplicateBags() use unordered_set<int> instead of set<Bag<int>>. // need to check again

@@ -2,6 +2,7 @@
 #include "Bag.h"
 #include<stack>
 #include<set>
+#include<queue>
 
 template<typename T>
 class TreeDecomposition{
@@ -121,5 +122,35 @@ class TreeDecomposition{
                     v.emplace_back(j);
             for(int i = 0; i < v.size() - 1; ++i)
                 add_tree_edge(v[i], v[i+1]);
+        }
+
+
+        void contractDuplicateBags(){ // from FlattenTreeDecomposition.h
+            Graph<Bag<T>> new_tree = tree;
+            queue<Bag<T>> q;
+            for(auto &v: new_tree.adj) q.emplace(v->first);
+            unordered_set<int> removed;
+            while(!q.empty()){
+                Bag<T> v = q.front();
+                q.pop();
+                if(removed.count(v.id)) continue;
+                bool flag = 1;
+                while(flag){
+                    flag = 0;
+                    for(Bag<T> &w : new_tree.adj[v]){
+                        if(v.containsAll(w.vertices)){
+                            new_tree.contract(v, w);
+                            removed.insert(w.id);
+                            flag = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // need to renumber
+            // .........
+            
+            tree = new_tree;
         }
 };

@@ -150,5 +150,13 @@ class Graph{
             }
             return connectedComponents;
         }
-        // need to implement contractionInformantion
+        
+        void contract(T v, T w){
+            for(auto &u : adj[w])
+                if(u != v && !is_adjacent(u, v))
+                    add_edge(u, v);
+                
+            remove_vertex(w);
+        }
+
 };

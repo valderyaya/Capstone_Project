@@ -10,11 +10,19 @@ class Bag{
 
         Bag(set<T> V, int id):vertices(V), id(id){}
 
+        bool operator!=(const Bag<T> w){
+            return (vertices != w.vertices) || (id != w.id);
+        }
+
+        bool operator==(const Bag<T> w){
+            return (vertices == w.vertices) && (id == w.id);
+        }
+
         bool contains(T v){
             return vertices.find(v) != vertices.end();
         }
 
-        bool containsAll(set<T> s){
+        bool containsAll(set<T> &s){
             if((int)vertices.size() < (int)s.size()) return 0;
             for(auto &v : s)
                 if(vertices.find(v) == vertices.end()) return 0;

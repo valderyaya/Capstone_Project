@@ -10,7 +10,11 @@ using namespace std;
 
 int main(){
     // testing code
-    TreeDecomposition<int> p;
+    Bag<int> a, b;
+    a.vertices.insert(1);
+    if(a != b) cout<<"no";
+    b.vertices.insert(1);
+    if(a==b) cout<<"yes";
     cout << "finish\n";
     return 0;
 }
