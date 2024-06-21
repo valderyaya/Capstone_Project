@@ -123,5 +123,32 @@ class Graph{
             return adj.size();
         }
 
+        vector<set<T>> get_connected_components(){
+            vector<set<T>> connectedComponents;
+            set<T> marked;
+            for(auto &v : adj){
+                if(marked.find(v->first) != marked.end()) continue;
+                
+                set<T> component;
+                component.insert(v->first);
+                marked.insert(v->first);
+
+                stack<T> s;
+                s.emplace(v->first);
+                while(!s.empty()){
+                    auto w = s.top();
+                    s.pop();
+                    for(auto &j : adj[s]){
+                        if(marked.find(j) != marked.end()){
+                            marked.insert(j);
+                            component.insert(j);
+                            s.emplace(j);
+                        }
+                    }
+                }
+                connectedComponents.emplace_back(component);
+            }
+            return connectedComponents;
+        }
         // need to implement contractionInformantion
 };

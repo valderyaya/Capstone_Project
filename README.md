@@ -5,3 +5,6 @@
 - [] Graph.h 
 
 - [] TreeDecomposition.h
+
+- [] Dinic
+

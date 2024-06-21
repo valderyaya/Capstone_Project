@@ -1,5 +1,5 @@
 #include "Graph.h"
-//#include "Bag.h"
+#include "Bag.h"
 #include<stack>
 #include<set>
 
@@ -47,7 +47,7 @@ class TreeDecomposition{
 
         stack<Bag<T>> connectedComponents(T x){
             stack<Bag<T>> ret;
-            unordered_set<int> vis;
+            unordered_set<int> vis;   // different from original
             for(auto &b : tree){
                 if(!vis.count(b.id) || b.contains(x)) continue;
                 ret.emplace(b);
@@ -111,5 +111,15 @@ class TreeDecomposition{
             }
 
             return 1;
+        }
+
+        void connect_Components(){
+            vector<set<Bag<T>>> comps = tree.get_connected_components();
+            vector<Bag<T>> v;
+            for(auto &i : comps)
+                for(auto &j : i)
+                    v.emplace_back(j);
+            for(int i = 0; i < v.size() - 1; ++i)
+                add_tree_edge(v[i], v[i+1]);
         }
 };
