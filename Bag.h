@@ -4,6 +4,10 @@ template<typename T>
 class Bag{
     public:
         set<T> vertices;
+
+        bool operator<(const Bag& o)const{
+            return vertices < o.vertices;
+        }
         //unordered_set<T> vertices;
         int id;
         Bag():vertices(), id(-1){}

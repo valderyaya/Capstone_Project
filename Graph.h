@@ -52,10 +52,10 @@ class Graph{
         }
 
 
-        void add_vertex(T v){
-            if(adj.find(v) != adj.end()) return;
-            adj[v];
-        }
+        // void add_vertex(T v){
+        //     if(adj.find(v) != adj.end()) return;
+        //     adj[v];
+        // }
 
 
         void add_directed_edge(T u, T v){
@@ -64,8 +64,8 @@ class Graph{
         }
 
         void add_half_of_edge(T u, T v){
-            add_vertex(u);
-            add_vertex(v);
+            // add_vertex(u);
+            // add_vertex(v);
             if(adj[u].find(v) != adj[u].end()) return;
             ++m;
             adj[u].insert(v);

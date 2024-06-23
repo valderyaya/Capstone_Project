@@ -12,4 +12,4 @@
 
 - move FlattenTreeDecomposition.h into TreeDecomposition.h
 
-- in TreeDecomposition.h, connectedComponents() and contractDuplicateBags() use unordered_set<int> instead of set<Bag<int>>. // need to check again
+- in TreeDecomposition.h, connectedComponents() and contractDuplicateBags() use unordered_set<int> instead of set<Bag<int>>. // need to check again . after contraction , need renuber?
