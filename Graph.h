@@ -159,4 +159,11 @@ class Graph{
             remove_vertex(w);
         }
 
+        bool isClique(){
+            for(auto &[i, u]: adj)
+                for(auto &[j, v]: adj)
+                    if(i != j && !is_adjacent(i, j)) return 0;
+            return 1;
+        }
+
 };

@@ -33,8 +33,8 @@ class TreeDecomposition{
          */
         void add_tree_edge(Bag<T> bi, Bag<T> bj){
             if(bi.isEmpty() || bj.isEmpty()) return;
-            if(!tree.containsNode(bi)) return;
-            if(!tree.containsNode(bj)) return;
+            // if(!tree.containsNode(bi)) return;
+            // if(!tree.containsNode(bj)) return;
             if(tree.adj[bi].find(bj) != tree.adj[bi].end()) return;
             tree.add_edge(bi, bj);
         }
@@ -48,11 +48,11 @@ class TreeDecomposition{
 
         stack<Bag<T>> connectedComponents(T x){
             stack<Bag<T>> ret;
-            unordered_set<int> vis;   // different from original
+            set<Bag<T>> vis;
             for(auto &b : tree){
-                if(!vis.count(b.id) || b.contains(x)) continue;
+                if(!vis.count(b) || b.contains(x)) continue;
                 ret.emplace(b);
-                vis.insert(b.id);
+                vis.insert(b);
 
                 stack<Bag<T>> s;
                 s.emplace(b);
@@ -60,8 +60,8 @@ class TreeDecomposition{
                     auto v = s.top(); 
                     s.pop();
                     for(auto &w : tree.adj[v]){
-                        if(!vis.count(w.id) && w.contains(x)){
-                            vis.insert(w.id);
+                        if(!vis.count(w) && w.contains(x)){
+                            vis.insert(w);
                             s.emplace(w);
                         }
                     }
@@ -129,18 +129,18 @@ class TreeDecomposition{
             Graph<Bag<T>> new_tree = tree;
             queue<Bag<T>> q;
             for(auto &v: new_tree.adj) q.emplace(v->first);
-            unordered_set<int> removed;
+            set<Bag<T>> removed;
             while(!q.empty()){
                 Bag<T> v = q.front();
                 q.pop();
-                if(removed.count(v.id)) continue;
+                if(removed.count(v)) continue;
                 bool flag = 1;
                 while(flag){
                     flag = 0;
                     for(Bag<T> &w : new_tree.adj[v]){
                         if(v.containsAll(w.vertices)){
                             new_tree.contract(v, w);
-                            removed.insert(w.id);
+                            removed.insert(w);
                             flag = 1;
                             break;
                         }
