@@ -153,4 +153,16 @@ class TreeDecomposition{
             
             tree = new_tree;
         }
+
+        void renumber(){
+            numOfBags = tree.adj.size();
+            map<Bag<T>, int> mp;
+            int id = 0;
+            for(auto &[i, j] : tree.adj)
+                if(!mp.count(i)) mp[i] = ++id;
+            for(auto &[i, j] : tree.adj){
+                i.id = mp[i];
+                for(Bag<T> &w : j) w->id = mp[w];
+            }
+        }
 };

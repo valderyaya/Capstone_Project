@@ -109,10 +109,7 @@ class NiceTreeDecomposition{
                     st.push(right);
                 }
             }
-            treeDecomposition.numOfBags = treeDecomposition.tree.adj.size();
-            int id = 0;
-            for(Bag<T> &v : treeDecomposition.tree.adj) v->id = ++id;
-            // renumber unfinish
+            treeDecomposition.renumber();
             return rt;
         }
 
