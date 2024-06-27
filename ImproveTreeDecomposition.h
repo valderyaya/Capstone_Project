@@ -40,7 +40,38 @@ class ImproveTreeDecomposition{
             }while(flag);
         }
 
-        void improve_bag(Bag<T>){
+        void improve_bag(Bag<T> b){
+            Graph<T> g = to_graph(b);
+            set<Bag<T>> neighbours;
+            for(auto &[i, j] : treeDecomposition.tree.adj) neighbours.insert(i);
+
+            set<T> sep ;// minimalseparator ///////////////////
+            for(T &v : sep) g.remove_vertex(v);
+
+            vector<set<T>> cs =  g.get_connected_components();
+            treeDecomposition.tree.remove_vertex(b);
+            Bag<T> bsep = treeDecomposition.create_Bag(sep);
+
+            for(set<T> s : cs){
+                set<T> tset(s);
+                for(auto &i: sep) s.insert(i);
+                Bag<T> bset = treeDecomposition.create_Bag(s);
+                treeDecomposition.add_tree_edge(bset, bsep);
+
+                for(Bag<T> bx : neighbours){
+                    set<T> tmp(sep), remain;
+                    set_intersection(tmp.begin(), tmp.end(), bx.vertices.begin(), bx.vertices.end(), inserter(remain, remain.begin()));
+                    set<T> union_(sep);
+                    for(auto &i:tset) union_.insert(i);
+                    bool flag = 1;
+                    for(auto &i: remain)
+                        if(union_.find(i) == union_.end()){
+                            flag = 0;
+                            break;
+                        }
+                    if(flag) treeDecomposition.add_tree_edge(bset, bx);
+                }
+            }
 
         }
 };

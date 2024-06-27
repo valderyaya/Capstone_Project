@@ -7,7 +7,7 @@ using namespace std;
 #include<map>
 #include<set>
 //#include "TreeDecomposition.h"
-#include "NiceTreeDecomposition.h"
+//#include "NiceTreeDecomposition.h"
 #include "ImproveTreeDecomposition.h"
 
 
@@ -30,12 +30,11 @@ int main(){
     // b2 = n.findSuitableRoot();
     // cout<<b2.id<<endl;
 
-    map<int, set<int>> p;
-    set<int> s1 = {1,2,3}, s2={1,3};
-    p[1] = s1, p[2] = s2;
-    for(auto &[i, j] : p)
-        cout<<i <<' '<< &j <<endl;
-
+    set<int> s1 = {2,3, 4}, s2={1,3,4}, s3;
+    set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), inserter(s3, s3.begin()));
+    for(auto &i:s3) cout<<i<<endl;
+    cout<<endl;
+    
     cout << "finish\n";
     return 0;
 }
