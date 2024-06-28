@@ -1,4 +1,5 @@
 #include "TreeDecomposition.h"
+#include "MinimalSeparator.h"
 
 template<typename T>
 class ImproveTreeDecomposition{
@@ -44,8 +45,8 @@ class ImproveTreeDecomposition{
             Graph<T> g = to_graph(b);
             set<Bag<T>> neighbours;
             for(auto &[i, j] : treeDecomposition.tree.adj) neighbours.insert(i);
-
-            set<T> sep ;// minimalseparator ///////////////////
+            
+            set<T> sep = MinimalSeparator<T>(g).get_seperator();
             for(T &v : sep) g.remove_vertex(v);
 
             vector<set<T>> cs =  g.get_connected_components();
