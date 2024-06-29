@@ -10,7 +10,9 @@
 
 - [x] NiceTreeDecomposition.h
 
-- [] ImproveTreeDecomposition.h
+- [x] ImproveTreeDecomposition.h
+
+- [ ] MinimalSeparator.h
 
 - the method of saving graph need to optimize
 
