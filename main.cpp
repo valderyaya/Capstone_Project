@@ -9,7 +9,7 @@ using namespace std;
 //#include "TreeDecomposition.h"
 //#include "NiceTreeDecomposition.h"
 #include "ImproveTreeDecomposition.h"
-
+#include "Graph_CFS.h"
 
 int main(){
     // testing code
@@ -30,11 +30,8 @@ int main(){
     // b2 = n.findSuitableRoot();
     // cout<<b2.id<<endl;
 
-    set<int> s1 = {2,3, 4}, s2={1,3,4}, s3;
-    set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), inserter(s3, s3.begin()));
-    for(auto &i:s3) cout<<i<<endl;
-    cout<<endl;
-    
+    Graph_CFS g(5);
+
     cout << "finish\n";
     return 0;
 }

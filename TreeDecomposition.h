@@ -41,7 +41,7 @@ class TreeDecomposition{
 
         Bag<T> create_Bag(const set<T> &vertices){
             Bag<T> bag(vertices, 1 + numOfBags++);
-            //tree.add_vertex(bag);
+            tree.add_vertex(bag);
             if((int)vertices.size() > width) width = (int)vertices.size();
             return bag;
         }

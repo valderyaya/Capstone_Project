@@ -19,6 +19,8 @@ class ImproveTreeDecomposition{
 
         Graph<T> to_graph(Bag<T> b){
             Graph<T> g = Graph<T>();
+            for(T &v : b.vertices)
+                g.add_vertex(v);
             for(T &u : b.vertices)
                 for(T &v : b.vertices)
                     if(treeDecomposition.graph.is_adjacent(u, v) || in_another_bag(u, v, b))
@@ -44,19 +46,22 @@ class ImproveTreeDecomposition{
         void improve_bag(Bag<T> b){
             Graph<T> g = to_graph(b);
             set<Bag<T>> neighbours;
-            for(auto &[i, j] : treeDecomposition.tree.adj) neighbours.insert(i);
+            for(auto &i: treeDecomposition.tree.adj[b]) neighbours.insert(i);
             
             set<T> sep = MinimalSeparator<T>(g).get_seperator();
             for(T &v : sep) g.remove_vertex(v);
 
             vector<set<T>> cs =  g.get_connected_components();
             treeDecomposition.tree.remove_vertex(b);
+
             Bag<T> bsep = treeDecomposition.create_Bag(sep);
+            treeDecomposition.tree.add_vertex(bsep);
 
             for(set<T> s : cs){
                 set<T> tset(s);
                 for(auto &i: sep) s.insert(i);
                 Bag<T> bset = treeDecomposition.create_Bag(s);
+                treeDecomposition.tree.add_vertex(bset);
                 treeDecomposition.add_tree_edge(bset, bsep);
 
                 for(Bag<T> bx : neighbours){
