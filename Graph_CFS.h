@@ -9,11 +9,11 @@ class Graph_CFS{
         
 
         Graph_CFS(int n){
-            h.resize(n+1);
-            cur.resize(n+1);
-            dis.resize(n+1);
+            h.resize(n+5);
+            cur.resize(n+5);
+            dis.resize(n+5);
             
-            int nn=n*n;
+            int nn=n*n+n+n;
             to.resize(std::min(nn, max_edge));
             nxt.resize(std::min(nn, max_edge));
             weigh.resize(std::min(nn, max_edge));
