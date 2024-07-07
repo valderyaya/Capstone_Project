@@ -8,7 +8,8 @@ class MinimalSeparator{
     public:
         unordered_set<T> sep;
         Graph<T> graph;
-
+        const int inf = 2147483647;
+        
         MinimalSeparator(const Graph<T> &g):seperator(unordered_set<T>()), graph(g) {}
 
         unordered_set<T> comput(){
@@ -28,10 +29,14 @@ class MinimalSeparator{
             Graph_CFS g(2*n);
             // initialize graph
             for(auto &i: v){
-                g.add_edge(mp[i], mp[i+n], 1);
-                
+                int mu = mp[i];
+                g.add_edge(mu, mu + n, 1);
+                g.add_edge(mn + n, mu, 0);
                 for(auto &j : v){
-                    
+                    if(graph.is_adjacent(i, j)){
+                        int mv = mp[j];
+                        g.
+                    }
                 }
             }
 
