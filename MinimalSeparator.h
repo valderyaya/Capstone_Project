@@ -2,6 +2,7 @@
 #include<unordered_set>
 #include<unordered_map>
 #include<vector>
+#include"Dinic.h"
 
 template<typename T>
 class MinimalSeparator{
@@ -47,15 +48,21 @@ class MinimalSeparator{
                 for(int j = i + 1; j <= n; ++j)
                     if(!graph.is_adjacent(mq[i], mq[j])){
                         // dinic
+                        Dinic dc(g, i, j + n);
+                        map<int, set<pair<int,int>>> another_g = dc.cal();
 
                         unordered_set<T> tmp;
                         for(int k = 1; k <= n; ++k)
                             if(k != i && k != j){
                                 // check
+                                for(auto &[x, y] : another_g[k])
+                                    if(x == k + n){
+                                        if(y == 0) tmp.insert(k);
+                                        break;
+                                    }
                             }
                         if(tmp.size() < sep.size()) sep = tmp;
                     }
-
             return sep;
         }
             
