@@ -1,3 +1,8 @@
+// #ifdef IMPROVETREEDECOMPOSITION_H
+// #define IMPROVETREEDECOMPOSITION_H
+
+#pragma once
+
 #include "TreeDecomposition.h"
 #include "MinimalSeparator.h"
 
@@ -81,3 +86,5 @@ class ImproveTreeDecomposition{
 
         }
 };
+
+// #endif 

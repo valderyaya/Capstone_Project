@@ -1,3 +1,7 @@
+// #ifdef NICETREEDECOMPOSITION_H
+// #define NICETREEDECOMPOSITION_H
+#pragma once
+
 #include "TreeDecomposition.h"
 //#include<map>
 
@@ -222,3 +226,5 @@ class NiceTreeDecomposition{
             return root;
         }
 };
+
+// #endif 

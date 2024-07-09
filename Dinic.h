@@ -1,5 +1,10 @@
+// #ifdef DINIC_H
+// #define DINIC_H
+#pragma once
+
 #include "Graph_CFS.h"
 #include <queue>
+#include <map>
 
 class Dinic{
     Graph_CFS gph;
@@ -64,43 +69,4 @@ class Dinic{
     }
 };
 
-
-
-// const int inf=2147483647;
-// int cnt=1,n,m,s,t,d[205],h[205],cur[205];
-// struct edge{int to,nxt,w;}e[10005];
-// bitset<205> vis;
-// void add(int u,int v,int w){
-//     e[++cnt]=edge{v,h[u],w};
-//     h[u]=cnt;
-// }
-// bool bfs(){
-//     queue<int> q; q.emplace(s);
-//     REP1(i,1,n) d[i]=0,cur[i]=h[i];
-//     d[s]=1;
-//     while(!q.empty()){
-//         int x=q.front();q.pop();
-//         for(int i=h[x];i;i=e[i].nxt){
-//             int v=e[i].to;
-//             if(!d[v]&&e[i].w) q.emplace(v),d[v]=d[x]+1;
-//         }
-//     }
-//     return d[t];
-// }
-// ll dfs(int x,int flow){
-//     if(x==t||flow==0) return flow;
-//     int mi; ll sum=0;
-//     for(int i=cur[x];i;i=e[i].nxt){
-//         int v=e[i].to; cur[x]=i;
-//         if(d[v]==d[x]+1&&(mi=dfs(v,min(flow,e[i].w)))){
-//             e[i].w-=mi; e[i^1].w+=mi;
-//             sum+=mi; flow-=mi;
-//             if(!flow) break;
-//         }
-//     }return sum;
-// }
-// ll dinic(){
-//     ll sum=0;
-//     while(bfs()) sum+=dfs(s,inf);
-//     return sum;
-// }
+// #endif 

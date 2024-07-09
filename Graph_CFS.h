@@ -1,3 +1,6 @@
+// #ifdef GRAPH_CFS_H
+// #define GRAPH_CFS_H
+#pragma once
 #include<vector>
 #include<algorithm>
 
@@ -26,3 +29,5 @@ class Graph_CFS{
             h[u] = cnt;
         }
 };
+
+// #endif

@@ -1,3 +1,7 @@
+// #ifdef GRAPH_H
+// #define GRAPH_H
+#pragma once
+
 #include<vector>
 #include<unordered_map>
 #include<unordered_set>
@@ -167,3 +171,6 @@ class Graph{
         }
 
 };
+
+
+// #endif 

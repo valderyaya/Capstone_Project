@@ -1,3 +1,7 @@
+// #ifdef MINIMALSEPARATOR_H
+// #define MINIMALSEPARATOR_H
+#pragma once
+
 #include "Graph.h"
 #include<unordered_set>
 #include<unordered_map>
@@ -11,7 +15,7 @@ class MinimalSeparator{
         Graph<T> graph;
         const int inf = 2147483647;
         
-        MinimalSeparator(const Graph<T> &g):seperator(unordered_set<T>()), graph(g) {}
+        MinimalSeparator(const Graph<T> &g):sep(unordered_set<T>()), graph(g) {}
 
         unordered_set<T> comput(){
             unordered_set<T> sep;
@@ -23,7 +27,7 @@ class MinimalSeparator{
                 ++c;
                 mp[i] = c;
                 mq[c] = i;
-                sep.insert(i)
+                sep.insert(i);
                 v.emplace_back(i);
             }
 
@@ -67,3 +71,5 @@ class MinimalSeparator{
         }
             
 };
+
+// #endif 

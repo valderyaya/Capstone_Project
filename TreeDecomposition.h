@@ -1,3 +1,7 @@
+// #ifdef TREEDECOMPOSITION_H
+// #define TREEDECOMPOSITION_H
+#pragma once
+
 #include "Graph.h"
 #include "Bag.h"
 #include<stack>
@@ -166,3 +170,5 @@ class TreeDecomposition{
             }
         }
 };
+
+// #endif 
