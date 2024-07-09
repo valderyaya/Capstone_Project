@@ -32,7 +32,7 @@ class MinimalSeparator{
             for(auto &i: v){
                 int mu = mp[i];
                 g.add_edge(mu, mu + n, 1);
-                g.add_edge(mn + n, mu, 0);
+                g.add_edge(mu + n, mu, 0);
                 for(auto &j : v){
                     if(graph.is_adjacent(i, j)){
                         int mv = mp[j];
@@ -48,7 +48,7 @@ class MinimalSeparator{
                 for(int j = i + 1; j <= n; ++j)
                     if(!graph.is_adjacent(mq[i], mq[j])){
                         // dinic
-                        Dinic dc(g, i, j + n);
+                        Dinic dc(g, i, j + n, 2*n);
                         map<int, set<pair<int,int>>> another_g = dc.cal();
 
                         unordered_set<T> tmp;

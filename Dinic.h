@@ -1,35 +1,70 @@
 #include "Graph_CFS.h"
-
+#include <queue>
 
 class Dinic{
     Graph_CFS gph;
-    int st, ed;
+    int st, ed, n;
+    const int inf = 2147483647;
 
-    Dinic(Graph_CFS &g, int s, int e):gph(g), st(s), ed(e){}
+    Dinic(Graph_CFS &g, int s, int e, int N):gph(g), st(s), ed(e), n(N){}
 
+    bool bfs(){
+        queue<int> q;
+        q.emplace(st);
+        for(int i = 1; i <= n; ++i)
+            gph.dis[i] = 0, gph.cur[i] = gph.h[i];
+        gph.dis[st] = 1;
+        while(!q.empty()){
+            int x = q.front();
+            q.pop();
+            for(int i = gph.h[x]; i; i = gph.nxt[i]){
+                int v = gph.to[i];
+                if(!gph.dis[v] && gph.weigh[i]){
+                    q.emplace(v);
+                    gph.dis[v] = gph.dis[x] + 1;
+                }
+            }
+        }
+        return gph.dis[ed];
+    }
+
+    int dfs(int x, int flow){
+        if(x == ed || flow == 0) return flow;
+        int sum = 0, mn;
+        for(int i = gph.cur[x]; i; i = gph.nxt[i]){
+            int v = gph.to[i];
+            gph.cur[x] = i;
+            if(gph.dis[v] == gph.dis[x] + 1 && (mn = dfs(v, min(flow, gph.weigh[i])))){
+                gph.weigh[i] -= mn;
+                gph.weigh[i ^ 1] += mn;
+                sum += mn;
+                flow -= mn;
+                if(!flow) break;
+            }
+        }
+        return sum;
+    }
+
+    int dinic(){
+        int sum = 0;
+        while(bfs())
+            sum += dfs(st, inf);
+        return sum;
+    }
     
+    map<int, set<pair<int,int>>> cal(){
+        dinic();
+        map<int, set<pair<int,int>>> ret;
+        for(int i = 1; i <= n; ++i){
+            //ret[i] = set<pair<int,int>>();
+            for(int j = gph.h[i]; j; j = gph.nxt[j])
+                ret[i].insert({gph.to[j], gph.weigh[j]});
+        }
+        return ret;
+    }
 };
 
 
-
-// //#pragma GCC optimize("Ofast,unroll-loops,no-stack-protector,fast-math")
-// #include<bits/stdc++.h>
-// //#include<bits/extc++.h>
-// //using namespace __gnu_pbds;
-// using namespace std;
-// typedef long long ll;
-// #define F first
-// #define S second
-// #define REP(i,n) for(int i=0;i<(n);++i)
-// #define REP1(i,a,b) for(int i=(a);i<=(b);++i)
-// #define em emplace_back
-// #define ALL(x) (x).begin(),(x).end()
-// #define mkp make_pair
-// #define pii pair<int,int>
-// #define pll pair<ll,ll>
-// #define Rosario ios::sync_with_stdio(0),cin.tie(0),cout.tie(0);
-// //#define lb(x) (x&-x)
-// #define wait system("pause");
 
 // const int inf=2147483647;
 // int cnt=1,n,m,s,t,d[205],h[205],cur[205];
@@ -68,9 +103,4 @@ class Dinic{
 //     ll sum=0;
 //     while(bfs()) sum+=dfs(s,inf);
 //     return sum;
-// }
-// int main(){//Rosario
-//     cin>>n>>m>>s>>t;  int a,b,c;
-//     REP(i,m) cin>>a>>b>>c,add(a,b,c),add(b,a,0);
-//     cout<<dinic()<<"\n";
 // }
