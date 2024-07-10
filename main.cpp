@@ -1,7 +1,7 @@
 #include<bits/stdc++.h>
 using namespace std;
-//#include "Bag.h"
-//#include "Graph.h"
+#include "Bag.h"
+#include "Graph.h"
 #include<unordered_map>
 #include<unordered_set>
 #include<map>
@@ -11,6 +11,11 @@ using namespace std;
 #include "ImproveTreeDecomposition.h"
 #include "Graph_CFS.h"
 #include "Dinic.h"
+
+
+void print_graph(){
+    
+}
 
 int main(){
 
