@@ -16,7 +16,7 @@ class ImproveTreeDecomposition{
         }
 
         bool in_another_bag(T u, T v, Bag<T> b){
-            for(Bag<T> &d : treeDecomposition.tree.adj)
+            for(Bag<T> d : treeDecomposition.tree.adj[b])
                 if(b != d && d.contains(u) && d.contains(v))
                     return 1;
             return 0;
@@ -24,10 +24,10 @@ class ImproveTreeDecomposition{
 
         Graph<T> to_graph(Bag<T> b){
             Graph<T> g = Graph<T>();
-            for(T &v : b.vertices)
+            for(T v : b.vertices)
                 g.add_vertex(v);
-            for(T &u : b.vertices)
-                for(T &v : b.vertices)
+            for(T u : b.vertices)
+                for(T v : b.vertices)
                     if(treeDecomposition.graph.is_adjacent(u, v) || in_another_bag(u, v, b))
                         g.add_edge(u, v);
             return g;
@@ -35,40 +35,46 @@ class ImproveTreeDecomposition{
 
         void improve_decomposition(){
             bool flag = 1;
+            int cnt =0;
             do{
+                cout<<++cnt<<endl;
                 flag = 0;
-                for(auto &[b, s] : treeDecomposition.tree.adj){
-                    Graph<T> g = to_graph(b);
+                for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it){
+                    Graph<T> g = to_graph(it->first);
                     if(!g.isClique()){
-                        improve_bag(b);
+                        cout<<"123"<<endl;
+                        improve_bag(it->first);
                         flag = 1;
                         break;
                     }
+                    cout<<"456"<<endl;
                 }
             }while(flag);
         }
 
         void improve_bag(Bag<T> b){
+            cout<<"improve_bag_0"<<endl;
             Graph<T> g = to_graph(b);
             set<Bag<T>> neighbours;
             for(auto &i: treeDecomposition.tree.adj[b]) neighbours.insert(i);
-            
-            set<T> sep = MinimalSeparator<T>(g).get_seperator();
-            for(T &v : sep) g.remove_vertex(v);
-
+            cout<<"improve_bag_1"<<endl;
+            set<T> sep = MinimalSeparator<T>(g).compute();
+            for(T v : sep) g.remove_vertex(v);
+            cout<<"improve_bag_2"<<endl;
             vector<set<T>> cs =  g.get_connected_components();
+            cout<<"improve_bag_---"<<endl;
             treeDecomposition.tree.remove_vertex(b);
-
+            cout<<"improve_bag_3"<<endl;
             Bag<T> bsep = treeDecomposition.create_Bag(sep);
             treeDecomposition.tree.add_vertex(bsep);
-
+            cout<<"improve_bag_4"<<endl;
             for(set<T> s : cs){
                 set<T> tset(s);
                 for(auto &i: sep) s.insert(i);
                 Bag<T> bset = treeDecomposition.create_Bag(s);
                 treeDecomposition.tree.add_vertex(bset);
                 treeDecomposition.add_tree_edge(bset, bsep);
-
+                cout<<"improve_bag_5"<<endl;
                 for(Bag<T> bx : neighbours){
                     set<T> tmp(sep), remain;
                     set_intersection(tmp.begin(), tmp.end(), bx.vertices.begin(), bx.vertices.end(), inserter(remain, remain.begin()));

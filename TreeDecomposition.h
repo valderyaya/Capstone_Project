@@ -19,12 +19,12 @@ class TreeDecomposition{
 
         TreeDecomposition():numOfBags(0), width(-1), n(0), tree(), graph(){}
 
-        TreeDecomposition(const Graph<T> &graph){
-            graph = graph;
+        TreeDecomposition(const Graph<T> &grh){
+            graph = grh;
             tree = Graph<Bag<T>>();
             numOfBags = 0;
             width = -1;
-            n = graph.get_num_of_vertices();
+            n = grh.get_num_of_vertices();
         }
 
         int get_width(){

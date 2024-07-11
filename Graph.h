@@ -113,7 +113,7 @@ class Graph{
 
         void remove_vertex(T v){
             if(isDirected){
-                for(auto &it : adj)
+                for(auto it = adj.begin(); it != adj.end(); ++it)
                     if(it->first != v && it->second.find(v) != it->second.end())
                         it->second.erase(v);
             }else{
@@ -123,26 +123,26 @@ class Graph{
             adj.erase(v);
         }
 
-        int get_num_of_vertices(){
+        int get_num_of_vertices() const{
             return adj.size();
         }
 
         vector<set<T>> get_connected_components(){
             vector<set<T>> connectedComponents;
             set<T> marked;
-            for(auto &v : adj){
-                if(marked.find(v->first) != marked.end()) continue;
-                
+            for(auto it = adj.begin(); it != adj.end(); ++it){
+                if(marked.find(it->first) != marked.end()) continue;
+                cout<<"get_connected_components_0"<<endl;
                 set<T> component;
-                component.insert(v->first);
-                marked.insert(v->first);
+                component.insert(it->first);
+                marked.insert(it->first);
 
                 stack<T> s;
-                s.emplace(v->first);
+                s.emplace(it->first);
                 while(!s.empty()){
                     auto w = s.top();
-                    s.pop();
-                    for(auto &j : adj[s]){
+                    s.pop();cout<<"get_connected_components_1"<<endl;
+                    for(auto &j : adj[w]){
                         if(marked.find(j) != marked.end()){
                             marked.insert(j);
                             component.insert(j);
@@ -151,7 +151,7 @@ class Graph{
                     }
                 }
                 connectedComponents.emplace_back(component);
-            }
+            }cout<<"get_connected_components_2"<<endl;
             return connectedComponents;
         }
         
@@ -164,11 +164,14 @@ class Graph{
         }
 
         bool isClique(){
-            for(auto &[i, u]: adj)
-                for(auto &[j, v]: adj)
-                    if(i != j && !is_adjacent(i, j)) return 0;
+            //cout<<"isClique_start"<<endl;
+            for(auto it = adj.begin(); it != adj.end(); ++it)
+                for(auto jt = adj.begin(); jt != adj.end(); ++jt)
+                    if(it->first != jt->first && !is_adjacent(it->first, jt->first)) return  0;
+            //cout<<"isClique_1"<<endl;
             return 1;
         }
+
 
 };
 

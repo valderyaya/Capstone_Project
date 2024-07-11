@@ -1,3 +1,5 @@
+#pragma once
+
 #include<unordered_set>
 
 template<typename T>
@@ -14,11 +16,11 @@ class Bag{
 
         Bag(set<T> V, int id):vertices(V), id(id){}
 
-        bool operator!=(const Bag<T> w){
+        bool operator!=(const Bag<T> w) const {
             return (vertices != w.vertices) || (id != w.id);
         }
 
-        bool operator==(const Bag<T> w){
+        bool operator==(const Bag<T> w) const{
             return (vertices == w.vertices) && (id == w.id);
         }
 

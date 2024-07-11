@@ -11,14 +11,13 @@
 template<typename T>
 class MinimalSeparator{
     public:
-        unordered_set<T> sep;
         Graph<T> graph;
         const int inf = 2147483647;
         
-        MinimalSeparator(const Graph<T> &g):sep(unordered_set<T>()), graph(g) {}
+        MinimalSeparator(const Graph<T> &g):graph(g) {}
 
-        unordered_set<T> comput(){
-            unordered_set<T> sep;
+        set<T> compute(){
+            set<T> sep;
             int n = graph.adj.size(), c = 0;
             unordered_map<T, int> mp;
             unordered_map<int, T> mq;
@@ -55,7 +54,7 @@ class MinimalSeparator{
                         Dinic dc(g, i, j + n, 2*n);
                         map<int, set<pair<int,int>>> another_g = dc.cal();
 
-                        unordered_set<T> tmp;
+                        set<T> tmp;
                         for(int k = 1; k <= n; ++k)
                             if(k != i && k != j){
                                 // check

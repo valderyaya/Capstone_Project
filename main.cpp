@@ -13,14 +13,61 @@ using namespace std;
 #include "Dinic.h"
 
 
-void print_graph(){
-    
+void print_graph_CFS(Graph_CFS &g){
+    int n = g.h.size();
+    for(int i = 0; i < n; ++i){
+        cout << i << ": ";
+        for(int j = g.h[i]; j; j = g.nxt[j])
+            cout << g.to[j] << ' ';
+        cout << "\n";
+    }
+}
+
+void print_graph_int(Graph<int> &g){
+    for(auto &[x, y] : g.adj){
+        cout << x << ": ";
+        for(auto &k : y) cout << k << ' ';
+        cout << "\n";
+    }
+}
+
+void print_graph_bag(Graph<Bag<int>> &g){
+    int c = 0;
+    for(auto &[x, y] : g.adj){
+        cout << x.id << ": {";
+        for(auto &i : x.vertices) cout << i <<' ';
+        cout << "}\n" ;
+    }
+    for(auto &[x, y] : g.adj){
+        cout << x.id << ": ";
+        for(auto &z : y) cout << z.id << ' ';
+        cout << "\n";
+    }
 }
 
 int main(){
+    cout << "------------Start--------------\n";
 
-    Graph_CFS g(5);
+    Graph<int> ori;
+    ori.add_edge(1, 2);
+    ori.add_edge(2, 3);
+    ori.add_edge(2, 7);
+    ori.add_edge(2, 8);
+    ori.add_edge(3, 6);
+    ori.add_edge(3, 5);
+    ori.add_edge(5, 6);
+    ori.add_edge(3, 4);
+    ori.add_edge(3, 8);
 
-    cout << "finish\n";
+    // print_graph_int(ori);
+
+    TreeDecomposition<int> td(ori);
+    set<int> s = {1, 2, 3, 4, 5, 6, 7, 8};
+    td.create_Bag(s);
+    ImproveTreeDecomposition itd(td);
+    itd.improve_decomposition();
+    print_graph_bag(itd.treeDecomposition.tree);
+
+    cout << "------------Finish--------------\n";
     return 0;
 }
