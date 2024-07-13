@@ -22,12 +22,12 @@ class MinimalSeparator{
             unordered_map<T, int> mp;
             unordered_map<int, T> mq;
             vector<T> v;
-            for(auto &[i, j]: graph.adj){
+            for(auto it = graph.adj.begin(); it != graph.adj.end(); ++it){
                 ++c;
-                mp[i] = c;
-                mq[c] = i;
-                sep.insert(i);
-                v.emplace_back(i);
+                mp[it->first] = c;
+                mq[c] = it->first;
+                sep.insert(it->first);
+                v.emplace_back(it->first);
             }
 
             Graph_CFS g(2*n);
@@ -41,8 +41,8 @@ class MinimalSeparator{
                         int mv = mp[j];
                         g.add_edge(mu + n, mv, inf);
                         g.add_edge(mv, mu + n, 0);
-                        g.add_edge(mv + n, mu, inf);
-                        g.add_edge(mu, mv + n, 0);
+                        // g.add_edge(mv + n, mu, inf);
+                        // g.add_edge(mu, mv + n, 0);
                     }
                 }
             }

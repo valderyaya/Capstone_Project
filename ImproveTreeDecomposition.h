@@ -48,7 +48,7 @@ class ImproveTreeDecomposition{
                     Graph<T> g = to_graph(it->first);
                     if(!g.isClique()){
                         cout<<"123"<<endl;
-                        improve_bag(it->first);
+                        improve_bag(it->first, g);
                         flag = 1;
                         break;
                     }
@@ -57,22 +57,17 @@ class ImproveTreeDecomposition{
             }while(flag);
         }
 
-        void improve_bag(Bag<T> b){
+        void improve_bag(Bag<T> b, Graph<T> g){
             cout<<"improve_bag_0"<<endl;
-            Graph<T> g = to_graph(b);
+            // Graph<T> g = to_graph(b);
             set<Bag<T>> neighbours;
             for(auto &i: treeDecomposition.tree.adj[b]) neighbours.insert(i);
-            cout<<"improve_bag_1"<<endl;
             set<T> sep = MinimalSeparator<T>(g).compute();
             for(T v : sep) g.remove_vertex(v);
-            cout<<"improve_bag_2"<<endl;
             vector<set<T>> cs =  g.get_connected_components();
-            cout<<"improve_bag_---"<<endl;
             treeDecomposition.tree.remove_vertex(b);
-            cout<<"improve_bag_3"<<endl;
             Bag<T> bsep = treeDecomposition.create_Bag(sep);
             treeDecomposition.tree.add_vertex(bsep);
-            cout<<"improve_bag_4"<<endl;
             for(set<T> s : cs){
                 set<T> tset(s);
                 for(auto &i: sep) s.insert(i);

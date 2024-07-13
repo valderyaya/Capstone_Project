@@ -131,7 +131,6 @@ class Graph{
             set<T> marked;
             for(auto it = adj.begin(); it != adj.end(); ++it){
                 if(marked.find(it->first) != marked.end()) continue;
-                cout<<"get_connected_components_0"<<endl;
                 set<T> component;
                 component.insert(it->first);
                 marked.insert(it->first);
@@ -140,9 +139,9 @@ class Graph{
                 s.emplace(it->first);
                 while(!s.empty()){
                     auto w = s.top();
-                    s.pop();cout<<"get_connected_components_1"<<endl;
+                    s.pop();
                     for(auto &j : adj[w]){
-                        if(marked.find(j) != marked.end()){
+                        if(marked.find(j) == marked.end()){
                             marked.insert(j);
                             component.insert(j);
                             s.emplace(j);
@@ -150,7 +149,7 @@ class Graph{
                     }
                 }
                 connectedComponents.emplace_back(component);
-            }cout<<"get_connected_components_2"<<endl;
+            }
             return connectedComponents;
         }
         
