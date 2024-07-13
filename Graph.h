@@ -18,7 +18,6 @@ class Graph{
 
         Graph(bool Directed = false): adj(), isDirected(Directed), m(0){}
 
-
         Graph(bool Directed, int n, int m): adj(), isDirected(Directed), m(m){}
 
         Graph(const Graph<T> &original){

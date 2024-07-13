@@ -16,8 +16,11 @@ class ImproveTreeDecomposition{
         }
 
         bool in_another_bag(T u, T v, Bag<T> b){
-            for(Bag<T> d : treeDecomposition.tree.adj[b])
-                if(b != d && d.contains(u) && d.contains(v))
+            vector<Bag<T>> comp;
+            for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it)
+                comp.emplace_back(it->first);
+            for(Bag<T> d : comp)
+                if(d != b && d.contains(u) && d.contains(v))
                     return 1;
             return 0;
         }
@@ -28,8 +31,10 @@ class ImproveTreeDecomposition{
                 g.add_vertex(v);
             for(T u : b.vertices)
                 for(T v : b.vertices)
-                    if(treeDecomposition.graph.is_adjacent(u, v) || in_another_bag(u, v, b))
-                        g.add_edge(u, v);
+                    if(u != v){
+                        if(treeDecomposition.graph.is_adjacent(u, v) || in_another_bag(u, v, b))
+                            g.add_edge(u, v);
+                    }
             return g;
         }
 
