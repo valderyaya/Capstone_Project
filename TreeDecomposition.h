@@ -162,12 +162,18 @@ class TreeDecomposition{
             numOfBags = tree.adj.size();
             map<Bag<T>, int> mp;
             int id = 0;
-            for(auto &[i, j] : tree.adj)
-                if(!mp.count(i)) mp[i] = ++id;
-            for(auto &[i, j] : tree.adj){
-                i.id = mp[i];
-                for(Bag<T> &w : j) w->id = mp[w];
+            Graph<Bag<T>> g;
+            for(auto it = tree.adj.begin(); it != tree.adj.end(); ++it){
+                mp[it->first] = ++id;
+                g.add_vertex(Bag<T>(it->first.vertices, id));
             }
+            
+            for(auto it = tree.adj.begin(); it != tree.adj.end(); ++it){
+                for(auto &w : it->second)
+                    g.add_edge(it->first, w);
+            }
+
+            tree = g;
         }
 };
 

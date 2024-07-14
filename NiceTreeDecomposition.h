@@ -42,26 +42,31 @@ class NiceTreeDecomposition{
         Bag<T> make_nice(Bag<T> suitableRoot){
             //Graph<Bag<T>> tree = &treeDecomposition.tree;
             Bag<T> rt = treeDecomposition.create_Bag(set<T>());
-            treeDecomposition.add_tree_edge(rt, suitableRoot);
+            treeDecomposition.tree.add_vertex(rt);
+            treeDecomposition.tree.add_edge(rt, suitableRoot);
 
             stack<Bag<T>> st;
             set<Bag<T>> vis;
             st.push(rt);
-
+            int c = 0;
             while(!st.empty()){
+                cout << ++c <<endl;
                 Bag<T> v =st.top();
                 st.pop();
                 vis.insert(v);
-
+                
                 int cnt = 0;
                 for(auto &i : treeDecomposition.tree.adj[v])
                     if(!vis.count(i)) ++cnt;
-                
+                cout << "debug1" <<endl;
                 if(cnt == 0 && !v.vertices.empty()){
+                    cout << "debug2" <<endl;
                     Bag<T> leaf = treeDecomposition.create_Bag(set<T>());
-                    treeDecomposition.add_tree_edge(v, leaf);
+                    treeDecomposition.tree.add_vertex(leaf);
+                    treeDecomposition.tree.add_edge(v, leaf);
                     st.push(v);
                 }else if(cnt == 1){
+                    cout << "debug3" <<endl;
                     Bag<T> w;
                     for(auto &i: treeDecomposition.tree.adj[v])
                         if(!vis.count(i)){
@@ -74,7 +79,6 @@ class NiceTreeDecomposition{
                         st.push(v);
                         continue;
                     }
-
                     set<T> newBag, diff;
                     set_difference(v.vertices.begin(), v.vertices.end(), w.vertices.begin(), w.vertices.end(), inserter(diff, diff.end()));
                     if(diff.size() > 0){
@@ -92,17 +96,18 @@ class NiceTreeDecomposition{
                     treeDecomposition.tree.add_edge(NEWBag, w);
                     st.push(NEWBag);
                 }else if(cnt >= 2){
+                    cout << "debug4" <<endl;
                     Bag<T> left = treeDecomposition.create_Bag(v.vertices);
                     Bag<T> right = treeDecomposition.create_Bag(v.vertices);
                     set<Bag<T>> neighbors;
                     for(auto &i: treeDecomposition.tree.adj[v])
                         if(!vis.count(i)) neighbors.insert(i);
-                    for(Bag<T> &w : neighbors) 
+                    for(Bag<T> w : neighbors) 
                         treeDecomposition.tree.remove_edge(v, w);
                     treeDecomposition.tree.add_edge(v, left);
                     treeDecomposition.tree.add_edge(v, right);
                     int i = 0;
-                    for(Bag<T> &w: neighbors){
+                    for(Bag<T> w: neighbors){
                         if(i < neighbors.size() / 2)
                             treeDecomposition.tree.add_edge(left, w);
                         else
@@ -113,7 +118,7 @@ class NiceTreeDecomposition{
                     st.push(right);
                 }
             }
-            treeDecomposition.renumber();
+            // treeDecomposition.renumber();
             return rt;
         }
 

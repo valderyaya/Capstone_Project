@@ -59,41 +59,43 @@ int main(){
     // ori.add_edge(3, 4);
     // ori.add_edge(3, 8);
 
-    // ori.add_edge(1, 2);
-    // ori.add_edge(2, 3);
-    // ori.add_edge(3, 4);
-    // ori.add_edge(1, 4);
+    ori.add_edge(1, 2);
+    ori.add_edge(2, 3);
+    ori.add_edge(3, 4);
+    ori.add_edge(1, 4);
     // ori.add_edge(2, 5);
     // ori.add_edge(6, 5);
     // ori.add_edge(3, 6);
     
-    ori.add_edge(1, 2);
-    ori.add_edge(2, 4);
-    ori.add_edge(1, 3);
-    ori.add_edge(3, 2);
-    ori.add_edge(5, 2);
-    ori.add_edge(4, 5);
-    ori.add_edge(7, 2);
-    ori.add_edge(3, 7);
-    ori.add_edge(3, 6);
-    ori.add_edge(6, 7);
-    ori.add_edge(5, 7);
-    ori.add_edge(5, 8);
-    ori.add_edge(7, 8);
+    // ori.add_edge(1, 2);
+    // ori.add_edge(2, 4);
+    // ori.add_edge(1, 3);
+    // ori.add_edge(3, 2);
+    // ori.add_edge(5, 2);
+    // ori.add_edge(4, 5);
+    // ori.add_edge(7, 2);
+    // ori.add_edge(3, 7);
+    // ori.add_edge(3, 6);
+    // ori.add_edge(6, 7);
+    // ori.add_edge(5, 7);
+    // ori.add_edge(5, 8);
+    // ori.add_edge(7, 8);
 
     // print_graph_int(ori);
 
     TreeDecomposition<int> td(ori);
-    set<int> s = {1, 2, 3, 4, 5, 6, 7, 8};
-    // set<int> s = {1, 2, 3, 4, 5, 6};
+    // set<int> s = {1, 2, 3, 4, 5, 6, 7, 8};
+    set<int> s = {1, 2, 3, 4};
     td.create_Bag(s);
     ImproveTreeDecomposition itd(td);
     itd.improve_decomposition();
-    print_graph_bag(itd.treeDecomposition.tree);
+    //print_graph_bag(itd.treeDecomposition.tree);
 
-    // set<int> sep = MinimalSeparator<int>(ori).compute();
-    // cout<<"sep: ";
-    // for(auto &i:sep) cout<<i<<' ';
+    NiceTreeDecomposition ntd(itd.treeDecomposition);
+    ntd.root = ntd.make_nice(ntd.findSuitableRoot());
+    print_graph_bag(ntd.treeDecomposition.tree);
+
+    // check renumber
 
     cout << "------------Finish--------------\n";
     return 0;

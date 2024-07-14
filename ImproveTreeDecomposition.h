@@ -54,9 +54,9 @@ class ImproveTreeDecomposition{
 
         void improve_decomposition(){
             bool flag = 1;
-            int cnt =0;
+            //int cnt =0;
             do{
-                cout<<++cnt<<endl;
+                //cout<<++cnt<<endl;
                 flag = 0;
                 for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it){
                     Graph<T> g = to_graph(it->first);
