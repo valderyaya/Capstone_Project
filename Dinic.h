@@ -55,6 +55,7 @@ class Dinic{
             int sum = 0;
             while(bfs())
                 sum += dfs(st, inf);
+            // cout << "Dinic: " << sum <<endl;
             return sum;
         }
         

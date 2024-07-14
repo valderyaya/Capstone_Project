@@ -34,12 +34,12 @@ class MinimalSeparator{
             // initialize graph
             for(auto &i: v){
                 int mu = mp[i];
-                g.add_edge(mu, mu + n, 1);
+                g.add_edge(mu, mu + n, inf);
                 g.add_edge(mu + n, mu, 0);
                 for(auto &j : v){
                     if(graph.is_adjacent(i, j)){
                         int mv = mp[j];
-                        g.add_edge(mu + n, mv, inf);
+                        g.add_edge(mu + n, mv, 1);
                         g.add_edge(mv, mu + n, 0);
                         // g.add_edge(mv + n, mu, inf);
                         // g.add_edge(mu, mv + n, 0);
@@ -50,7 +50,7 @@ class MinimalSeparator{
             for(int i = 1; i <= n; ++i)
                 for(int j = i + 1; j <= n; ++j)
                     if(!graph.is_adjacent(mq[i], mq[j])){
-                        // dinic
+                        // cout << mq[i] << ' ' << mq[j] <<endl;
                         Dinic dc(g, i, j + n, 2*n);
                         map<int, set<pair<int,int>>> another_g = dc.cal();
 
@@ -58,9 +58,9 @@ class MinimalSeparator{
                         for(int k = 1; k <= n; ++k)
                             if(k != i && k != j){
                                 // check
-                                for(auto &[x, y] : another_g[k])
-                                    if(x == k + n){
-                                        if(y == 0) tmp.insert(k);
+                                for(auto &[x, y] : another_g[k + n])
+                                    if(x == k && y){
+                                        tmp.insert(mq[k]);
                                         break;
                                     }
                             }
