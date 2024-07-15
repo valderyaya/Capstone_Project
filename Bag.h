@@ -6,12 +6,12 @@ template<typename T>
 class Bag{
     public:
         set<T> vertices;
+        int id;
 
         bool operator<(const Bag& o)const{
-            return vertices < o.vertices;
+            return vertices == o.vertices ? id < o.id : vertices < o.vertices;
         }
         //unordered_set<T> vertices;
-        int id;
         Bag():vertices(), id(-1){}
 
         Bag(set<T> V, int id):vertices(V), id(id){}
@@ -24,7 +24,7 @@ class Bag{
             return (vertices == w.vertices) && (id == w.id);
         }
 
-        bool contains(T v){
+        bool contains(T v) const{
             return vertices.find(v) != vertices.end();
         }
 
@@ -39,7 +39,7 @@ class Bag{
             return vertices.empty();
         }
 
-        int compareTo(Bag<T> o){
+        int compareTo(Bag<T> o) {
             return id - o.id;
         }
 };

@@ -48,55 +48,49 @@ class NiceTreeDecomposition{
             stack<Bag<T>> st;
             set<Bag<T>> vis;
             st.push(rt);
-            int c = 0;
+            // int c = 0;
             while(!st.empty()){
-                cout << ++c <<endl;
+                // cout << ++c <<endl;
                 Bag<T> v =st.top();
                 st.pop();
                 vis.insert(v);
                 
                 int cnt = 0;
+                Bag<T> ww;
                 for(auto &i : treeDecomposition.tree.adj[v])
-                    if(!vis.count(i)) ++cnt;
-                cout << "debug1" <<endl;
+                    if(!vis.count(i)){
+                        ++cnt;
+                        ww = i;
+                    }
                 if(cnt == 0 && !v.vertices.empty()){
-                    cout << "debug2" <<endl;
                     Bag<T> leaf = treeDecomposition.create_Bag(set<T>());
                     treeDecomposition.tree.add_vertex(leaf);
                     treeDecomposition.tree.add_edge(v, leaf);
                     st.push(v);
                 }else if(cnt == 1){
-                    cout << "debug3" <<endl;
-                    Bag<T> w;
-                    for(auto &i: treeDecomposition.tree.adj[v])
-                        if(!vis.count(i)){
-                            w = i;
-                            break;
-                        }
-                    
-                    if(v.vertices == w.vertices){
-                        treeDecomposition.tree.contract(v, w);
+                    if(v.vertices == ww.vertices){
+                        treeDecomposition.tree.contract(v, ww);
                         st.push(v);
                         continue;
                     }
                     set<T> newBag, diff;
-                    set_difference(v.vertices.begin(), v.vertices.end(), w.vertices.begin(), w.vertices.end(), inserter(diff, diff.end()));
+                    set_difference(v.vertices.begin(), v.vertices.end(), ww.vertices.begin(), ww.vertices.end(), inserter(diff, diff.end()));
                     if(diff.size() > 0){
                         newBag = v.vertices;
                         newBag.erase(*diff.begin());
                     }else{
                         diff.clear();
-                        set_difference(w.vertices.begin(), w.vertices.end(), v.vertices.begin(), v.vertices.end(), inserter(diff, diff.end()));
+                        set_difference(ww.vertices.begin(), ww.vertices.end(), v.vertices.begin(), v.vertices.end(), inserter(diff, diff.end()));
                         newBag = v.vertices;
                         newBag.insert(*diff.begin());
                     }
                     Bag<T> NEWBag = treeDecomposition.create_Bag(newBag);
-                    treeDecomposition.tree.remove_edge(v, w);
+                    treeDecomposition.tree.remove_edge(v, ww);
+                    treeDecomposition.tree.add_vertex(NEWBag);
                     treeDecomposition.tree.add_edge(v, NEWBag);
-                    treeDecomposition.tree.add_edge(NEWBag, w);
+                    treeDecomposition.tree.add_edge(NEWBag, ww);
                     st.push(NEWBag);
                 }else if(cnt >= 2){
-                    cout << "debug4" <<endl;
                     Bag<T> left = treeDecomposition.create_Bag(v.vertices);
                     Bag<T> right = treeDecomposition.create_Bag(v.vertices);
                     set<Bag<T>> neighbors;
@@ -118,7 +112,12 @@ class NiceTreeDecomposition{
                     st.push(right);
                 }
             }
-            // treeDecomposition.renumber();
+            vector<Bag<T>> empt;
+            for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it) 
+                if(it->first.vertices.empty()) 
+                    empt.emplace_back(it->first);
+            for(auto &i : empt) treeDecomposition.tree.remove_vertex(i);
+            treeDecomposition.renumber();
             return rt;
         }
 

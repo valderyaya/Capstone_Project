@@ -59,44 +59,67 @@ int main(){
     // ori.add_edge(3, 4);
     // ori.add_edge(3, 8);
 
-    ori.add_edge(1, 2);
-    ori.add_edge(2, 3);
-    ori.add_edge(3, 4);
-    ori.add_edge(1, 4);
+    // ori.add_edge(1, 2);
+    // ori.add_edge(2, 3);
+    // ori.add_edge(3, 4);
+    // ori.add_edge(1, 4);
     // ori.add_edge(2, 5);
     // ori.add_edge(6, 5);
     // ori.add_edge(3, 6);
     
-    // ori.add_edge(1, 2);
-    // ori.add_edge(2, 4);
-    // ori.add_edge(1, 3);
-    // ori.add_edge(3, 2);
-    // ori.add_edge(5, 2);
-    // ori.add_edge(4, 5);
-    // ori.add_edge(7, 2);
-    // ori.add_edge(3, 7);
-    // ori.add_edge(3, 6);
-    // ori.add_edge(6, 7);
-    // ori.add_edge(5, 7);
-    // ori.add_edge(5, 8);
-    // ori.add_edge(7, 8);
+    ori.add_edge(1, 2);
+    ori.add_edge(2, 4);
+    ori.add_edge(1, 3);
+    ori.add_edge(3, 2);
+    ori.add_edge(5, 2);
+    ori.add_edge(4, 5);
+    ori.add_edge(7, 2);
+    ori.add_edge(3, 7);
+    ori.add_edge(3, 6);
+    ori.add_edge(6, 7);
+    ori.add_edge(5, 7);
+    ori.add_edge(5, 8);
+    ori.add_edge(7, 8);
 
     // print_graph_int(ori);
 
     TreeDecomposition<int> td(ori);
-    // set<int> s = {1, 2, 3, 4, 5, 6, 7, 8};
-    set<int> s = {1, 2, 3, 4};
+    set<int> s = {1, 2, 3, 4, 5, 6, 7, 8};
+    // set<int> s = {1, 2, 3, 4, 5, 6};
     td.create_Bag(s);
     ImproveTreeDecomposition itd(td);
     itd.improve_decomposition();
-    //print_graph_bag(itd.treeDecomposition.tree);
+    // cout<< itd.treeDecomposition.isValid() << endl;
+    // print_graph_bag(itd.treeDecomposition.tree);
 
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
     print_graph_bag(ntd.treeDecomposition.tree);
+    cout<< ntd.treeDecomposition.isValid() << endl;
+    
 
     // check renumber
 
     cout << "------------Finish--------------\n";
     return 0;
 }
+
+
+// 5: {}
+// 14: {}
+// 6: {1 }
+// 7: {1 2 }
+// 8: {1 2 4 }
+// 10: {2 3 4 }
+// 9: {2 4 }
+// 12: {3 4 }
+// 13: {4 }
+// 5: 6
+// 14: 13
+// 6: 5 7
+// 7: 6 8
+// 8: 7 9
+// 10: 9 12
+// 9: 8 10
+// 12: 10 13
+// 13: 14 12

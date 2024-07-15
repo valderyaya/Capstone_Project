@@ -53,13 +53,13 @@ class TreeDecomposition{
         stack<Bag<T>> connectedComponents(T x){
             stack<Bag<T>> ret;
             set<Bag<T>> vis;
-            for(auto &b : tree){
-                if(!vis.count(b) || b.contains(x)) continue;
-                ret.emplace(b);
-                vis.insert(b);
+            for(auto b = tree.adj.begin(); b != tree.adj.end(); ++b){
+                if(vis.count(b->first) || !b->first.contains(x)) continue;
+                ret.emplace(b->first);
+                vis.insert(b->first);
 
                 stack<Bag<T>> s;
-                s.emplace(b);
+                s.emplace(b->first);
                 while(!s.empty()){
                     auto v = s.top(); 
                     s.pop();
@@ -76,41 +76,41 @@ class TreeDecomposition{
         
         bool isValid(){
             // every vertex is in a bag
-            for(auto &v : graph){
+            for(auto it = graph.adj.begin(); it != graph.adj.end(); ++it){
                 bool contained = 0;
-                for(auto &b : tree)
-                    if(b.contains(v)){
+                for(auto jt = tree.adj.begin(); jt != tree.adj.end(); ++jt)
+                    if(jt->first.contains(it->first)){
                         contained = 1;
                         break;
                     }
                 if(!contained){
-                    cerr << "Vertex " << v << " not in bag\n";
+                    cerr << "Vertex "<<it->first<<" not in bag\n";
                     return 0;
                 }
             }
 
             // every edge is in a bag
-            for(auto &v : graph){
-                for(auto &w : graph.adj[v]){
-                    if(v.compareTo(w) >= 0) continue;
+            for(auto it = graph.adj.begin(); it != graph.adj.end(); ++it){
+                for(auto &w : it->second){
+                    if(it->first >= w) continue;
                     bool contained = 0;
-                    for(auto &b : tree)
-                        if(b.contains(v) && b.contains(w)){
+                    for(auto b = tree.adj.begin(); b != tree.adj.end(); ++b)
+                        if(b->first.contains(it->first) && b->first.contains(w)){
                             contained = 1;
                             break;
                         }
                     if(!contained){
-                        cerr << "Edge " << v << ", " << w << " not in bag\n";
+                        cerr << "Edge "<<it->first<<' '<<w<<" not in bag\n";
                         return 0;
                     }
                 }
             }
 
             // subtrees connected
-            for(auto &v : graph){
-                stack<Bag<T>> s = connectedComponents(v);
+            for(auto it = graph.adj.begin(); it != graph.adj.end(); ++it){
+                stack<Bag<T>> s = connectedComponents(it->first);
                 if(s.size() != 1){
-                    cerr << "Vertex " << v << "is not connected\n";
+                    cerr << "Vertex " << it->first<< " is not connected\n";
                     return 0;
                 }
             }
@@ -169,10 +169,12 @@ class TreeDecomposition{
             }
             
             for(auto it = tree.adj.begin(); it != tree.adj.end(); ++it){
-                for(auto &w : it->second)
-                    g.add_edge(it->first, w);
+                Bag<T> u(it->first.vertices, mp[it->first]);
+                for(auto &w : it->second){
+                    Bag<T> v(w.vertices, mp[w]);
+                    g.add_edge(u, v);
+                }
             }
-
             tree = g;
         }
 };
