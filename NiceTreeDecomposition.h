@@ -118,7 +118,8 @@ class NiceTreeDecomposition{
                     empt.emplace_back(it->first);
             for(auto &i : empt) treeDecomposition.tree.remove_vertex(i);
             treeDecomposition.renumber();
-            return rt;
+            return treeDecomposition.tree.adj.begin()->first;
+            //return rt;
         }
 
         void classify_bags(){
@@ -179,7 +180,7 @@ class NiceTreeDecomposition{
                 }else if(bagType[v] == BagType::INTRODUCE)
                     index.push(treeIndex[specialVertex[v]]);
                 
-                for(Bag<T> &w : treeDecomposition.tree.adj[v]){
+                for(Bag<T> w : treeDecomposition.tree.adj[v]){
                     if(vis.count(w)) continue;
                     st.push(w);
                     vis.insert(w);

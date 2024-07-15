@@ -96,30 +96,17 @@ int main(){
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
     print_graph_bag(ntd.treeDecomposition.tree);
     cout<< ntd.treeDecomposition.isValid() << endl;
+    ntd.classify_bags();
+    // for(auto it = ntd.bagType.begin(); it != ntd.bagType.end(); ++it){
+    //     cout << it->first.id << ' ' << static_cast<int>(it->second) <<endl;
+    // }
+
+    ntd.compute_tree_index();
+    // for(auto it = ntd.bagType.begin(); it != ntd.bagType.end(); ++it){
+    //     cout << it->first.id << ' ' << ntd.specialVertex[it->first] << ' ' << ntd.treeIndex[ntd.specialVertex[it->first]] <<endl;
+    // }
     
-
-    // check renumber
-
     cout << "------------Finish--------------\n";
     return 0;
 }
 
-
-// 5: {}
-// 14: {}
-// 6: {1 }
-// 7: {1 2 }
-// 8: {1 2 4 }
-// 10: {2 3 4 }
-// 9: {2 4 }
-// 12: {3 4 }
-// 13: {4 }
-// 5: 6
-// 14: 13
-// 6: 5 7
-// 7: 6 8
-// 8: 7 9
-// 10: 9 12
-// 9: 8 10
-// 12: 10 13
-// 13: 14 12
