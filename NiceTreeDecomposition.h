@@ -33,7 +33,6 @@ class NiceTreeDecomposition{
             veryNice = verynice;
         }
 
-        // TreeDecomposition<T> postprocessTreeDecomposition() , unfinish
 
         Bag<T> findSuitableRoot(){
             return treeDecomposition.tree.adj.begin()->first;
