@@ -13,6 +13,7 @@ class DCSGQ{
     public:
         const int INF = 2147483647;
         vector<int> UpBound, LowBound, weight;
+        map<pair<int, int>, int> edge_weight; 
         NiceTreeDecomposition<T> ntd;
         int H, Initiator, n;
         struct state{
@@ -28,6 +29,27 @@ class DCSGQ{
         };
         map<state, int> W, W_;
         DCSGQ(NiceTreeDecomposition<T> &x):ntd(x){}
+
+        vector<set<int>> get_subset(set<int> s){
+            vector<set<int>> ret;
+            if(s.size() == 2){
+                int t[2] = {*s.begin(), *s.rbegin()};
+                ret.emplace_back(set<int>({t[0]}));
+                ret.emplace_back(set<int>({t[1]}));
+                ret.emplace_back(set<int>({t[0], t[1]}));
+            }else if(s.size() == 3){    
+                int t[3], i = 0;
+                for(auto it=s.begin(); it != s.end(); ++it, ++i) t[i] = *it;
+                ret.emplace_back(set<int>({t[0]}));
+                ret.emplace_back(set<int>({t[1]}));
+                ret.emplace_back(set<int>({t[2]}));
+                ret.emplace_back(set<int>({t[0], t[1]}));
+                ret.emplace_back(set<int>({t[0], t[2]}));
+                ret.emplace_back(set<int>({t[1], t[2]}));
+                ret.emplace_back(set<int>({t[0], t[1], t[3]}));
+            }
+            return ret;
+        }
 
         void LEAF_trasfer(Bag<T> b){
             T v = ntd.specialVertex[b];
@@ -67,6 +89,15 @@ class DCSGQ{
 
         void INTRODUCE_transfer(Bag<T> b){
             int v = ntd.specialVertex[b];
+            W[state(b, set<T>(), map<T,T>())] = 0;
+            W_[state(b, set<T>(), map<T,T>())] = 0; 
+            vector<set<int>> ss = get_subset(b.vertices);
+            for(auto &s : ss){
+                if(s.count(v)){
 
+                }else{
+                    W[state(b, s, )]
+                }
+            }
         }
 };
