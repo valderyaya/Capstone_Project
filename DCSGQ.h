@@ -87,16 +87,27 @@ class DCSGQ{
             }
         }
 
-        void INTRODUCE_transfer(Bag<T> b){
-            int v = ntd.specialVertex[b];
-            W[state(b, set<T>(), map<T,T>())] = 0;
-            W_[state(b, set<T>(), map<T,T>())] = 0; 
-            vector<set<int>> ss = get_subset(b.vertices);
+        void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){
+            int v = ntd.specialVertex[bx];
+            W[state(bx, set<T>(), map<T,T>())] = 0;
+            W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 if(s.count(v)){
 
                 }else{
-                    W[state(b, s, )]
+                    state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
+                    if(s.size() == 1){
+                        for(int o = *s.begin(), i = LowBound[*s.begin()]; i <= UpBound[*s.begin()]; ++i){
+                            prv.P[o] = now.P[o] = i;
+                            if(W.count(prv)) W[now] = W[prv];
+                            if(W_.count(prv)) W_[now] = W_[prv];
+                        }
+                    }else if(s.size() == 2){
+
+                    }else if(s.size() == 3){
+
+                    }
                 }
             }
         }
