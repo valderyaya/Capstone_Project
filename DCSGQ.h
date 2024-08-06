@@ -15,7 +15,7 @@ class DCSGQ{
         vector<int> UpBound, LowBound, weight;
         map<pair<int, int>, int> edge_weight; 
         NiceTreeDecomposition<T> ntd;
-        int H, Initiator, n;
+        int H, Initiator, n, max_dg;
         struct state{
             Bag<T> B;
             set<T> S;
@@ -29,6 +29,16 @@ class DCSGQ{
         };
         map<state, int> W, W_;
         DCSGQ(NiceTreeDecomposition<T> &x):ntd(x){}
+
+        void initialization(){
+            max_dg = 0;
+            for(auto &it : ntd.treeDecomposition.graph.adj)
+                max_dg = max(max_dg, it->second.size());
+        }
+
+        bool is_in_range(int v, int w){
+            return (LowBound[v] <= w && w <= UpBound[v]);
+        }
 
         vector<set<int>> get_subset(set<int> s){
             vector<set<int>> ret;
@@ -87,13 +97,24 @@ class DCSGQ{
             }
         }
 
-        void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){
+        void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){ // missing p_x = 0 cases ?
             int v = ntd.specialVertex[bx];
             W[state(bx, set<T>(), map<T,T>())] = 0;
             W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 if(s.count(v)){
+                    int f = 0;
+                    for(auto it = s.begin(); it != s.end(); ++it)
+                        if(*it != v) f += edge_weight[{v, *it}];  // calculate condition 8
+                    
+                    if(s.size() == 1){
+
+                    }else if(s.size() == 2){
+
+                    }else if(s.size() == 3){
+
+                    }
 
                 }else{
                     state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
@@ -104,9 +125,25 @@ class DCSGQ{
                             if(W_.count(prv)) W_[now] = W_[prv];
                         }
                     }else if(s.size() == 2){
-
+                        int a = *s.begin(), b = *s.rbegin();
+                        for(int i = LowBound[a]; i <= UpBound[a]; ++i)
+                            for(int j = LowBound[b]; j <= UpBound[b]; ++j){
+                                prv.P[a] = i, prv.P[b] = j;
+                                now.P[a] = i, now.P[b] = j;
+                                if(W.count(prv)) W[now] = W[prv];
+                                if(W_.count(prv)) W_[now] = W_[prv];
+                            }
                     }else if(s.size() == 3){
-
+                        int t[3], ind=0;
+                        for(auto it = s.begin(); it != s.end(); ++it) t[ind++] = *it;
+                        for(int i = LowBound[t[0]]; i <= UpBound[t[0]]; ++i)
+                            for(int j = LowBound[t[1]]; j <= UpBound[t[1]]; ++j)
+                                for(int k = LowBound[t[2]; k <= UpBound[t[2]]]; ++k){
+                                    prv.P[t[0]] = i, prv.P[t[1]] = j, prv.P[t[2]] = k;
+                                    now.P[t[0]] = i, now.P[t[1]] = j, now.P[t[2]] = k;
+                                    if(W.count(prv)) W[now] = W[prv];
+                                    if(W_.count(prv)) W_[now] = W_[prv];
+                                }
                     }
                 }
             }
