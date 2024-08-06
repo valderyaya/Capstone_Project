@@ -108,8 +108,17 @@ class DCSGQ{
                     for(auto it = s.begin(); it != s.end(); ++it)
                         if(*it != v) f += edge_weight[{v, *it}];  // calculate condition 8
                     
+                    state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
                     if(s.size() == 1){
+                        for(int o = *s.begin(), i = 0; i <= max_dg; ++i){
+                            prv.P[o] = now.P[o] = i;
+                            if(f != i) continue;
+                            else if(f == i && is_in_range(o)){
+                                
+                            }else if(f == i && !is_in_range(o)){
 
+                            }
+                        }
                     }else if(s.size() == 2){
 
                     }else if(s.size() == 3){
@@ -119,15 +128,15 @@ class DCSGQ{
                 }else{
                     state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
                     if(s.size() == 1){
-                        for(int o = *s.begin(), i = LowBound[*s.begin()]; i <= UpBound[*s.begin()]; ++i){
+                        for(int o = *s.begin(), i = 0; i <= max_dg; ++i){
                             prv.P[o] = now.P[o] = i;
                             if(W.count(prv)) W[now] = W[prv];
                             if(W_.count(prv)) W_[now] = W_[prv];
                         }
                     }else if(s.size() == 2){
                         int a = *s.begin(), b = *s.rbegin();
-                        for(int i = LowBound[a]; i <= UpBound[a]; ++i)
-                            for(int j = LowBound[b]; j <= UpBound[b]; ++j){
+                        for(int i = 0; i <= max_dg; ++i)
+                            for(int j = 0; j <= max_dg; ++j){
                                 prv.P[a] = i, prv.P[b] = j;
                                 now.P[a] = i, now.P[b] = j;
                                 if(W.count(prv)) W[now] = W[prv];
@@ -136,9 +145,9 @@ class DCSGQ{
                     }else if(s.size() == 3){
                         int t[3], ind=0;
                         for(auto it = s.begin(); it != s.end(); ++it) t[ind++] = *it;
-                        for(int i = LowBound[t[0]]; i <= UpBound[t[0]]; ++i)
-                            for(int j = LowBound[t[1]]; j <= UpBound[t[1]]; ++j)
-                                for(int k = LowBound[t[2]; k <= UpBound[t[2]]]; ++k){
+                        for(int i = 0; i <= max_dg; ++i)
+                            for(int j = 0; j <= max_dg; ++j)
+                                for(int k = 0; k <= max_dg; ++k){
                                     prv.P[t[0]] = i, prv.P[t[1]] = j, prv.P[t[2]] = k;
                                     now.P[t[0]] = i, now.P[t[1]] = j, now.P[t[2]] = k;
                                     if(W.count(prv)) W[now] = W[prv];
