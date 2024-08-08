@@ -113,9 +113,11 @@ class DCSGQ{
                         for(int o = *s.begin(), i = 0; i <= max_dg; ++i){
                             prv.P[o] = now.P[o] = i;
                             if(f != i) continue;
-                            else if(f == i && is_in_range(o)){
+                            else if(f == i && is_in_range(o, i)){
+                                set<int> sy(s);
+                                sy.erase(o);
                                 
-                            }else if(f == i && !is_in_range(o)){
+                            }else if(f == i && !is_in_range(o, i)){
 
                             }
                         }
