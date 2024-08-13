@@ -108,21 +108,42 @@ class DCSGQ{
                     for(auto it = s.begin(); it != s.end(); ++it)
                         if(*it != v) f += edge_weight[{v, *it}];  // calculate condition 8
                     
-                    state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
+                    state now = state(bx, s, map<T,T>());
                     if(s.size() == 1){
-                        for(int o = *s.begin(), i = 0; i <= max_dg; ++i){
-                            prv.P[o] = now.P[o] = i;
+                        for(int u = *s.begin(), i = 0; i <= max_dg; ++i){
+                            now.P[u] = i;
                             if(f != i) continue;
-                            else if(f == i && is_in_range(o, i)){
+                            else if(f == i && is_in_range(u, i)){
                                 set<int> sy(s);
-                                sy.erase(o);
-                                
-                            }else if(f == i && !is_in_range(o, i)){
-
+                                sy.erase(u);
+                                state prv = state(by, sy, map<T,T>());
+                                if(W_.count(prv)){
+                                    W[now] = W_[prv] + weight[u];
+                                    W_[now] = W_[prv] + weight[u];
+                                }
+                            }else if(f == i && !is_in_range(u, i)){
+                                set<int> sy(s);
+                                sy.erase(u);
+                                state prv = state(by, sy, map<T,T>());
+                                if(W_.count(prv)) W_[now] = W_[prv];
                             }
                         }
                     }else if(s.size() == 2){
+                        int a = *s.begin(), b = *s.rbegin();
+                        if(a != v) swap(a, b);
+                        for(int i = 0; i <= max_dg; ++i)
+                            for(int j = 0; j <= max_dg; ++j){
+                                now.P[a] = i, now.P[b] = j;
+                                if(f != i) continue;
+                                else if(f == i && is_in_range(u, i)){
+                                    set<int> sy(s);
+                                    sy.erase(u);
+                                    state prv = state(by, sy, map<T,T>());
+                                    
+                                }else if(f == i && !is_in_range(u, i)){
 
+                                }
+                            }
                     }else if(s.size() == 3){
 
                     }
@@ -130,8 +151,8 @@ class DCSGQ{
                 }else{
                     state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
                     if(s.size() == 1){
-                        for(int o = *s.begin(), i = 0; i <= max_dg; ++i){
-                            prv.P[o] = now.P[o] = i;
+                        for(int u = *s.begin(), i = 0; i <= max_dg; ++i){
+                            prv.P[u] = now.P[u] = i;
                             if(W.count(prv)) W[now] = W[prv];
                             if(W_.count(prv)) W_[now] = W_[prv];
                         }
