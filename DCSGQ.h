@@ -125,7 +125,7 @@ class DCSGQ{
                                 set<int> sy(s);
                                 sy.erase(u);
                                 state prv = state(by, sy, map<T,T>());
-                                if(W_.count(prv)) W_[now] = W_[prv];
+                                if(W_.count(prv)) W_[now] = W_[prv] + weight[u];
                             }
                         }
                     }else if(s.size() == 2){
@@ -135,17 +135,52 @@ class DCSGQ{
                             for(int j = 0; j <= max_dg; ++j){
                                 now.P[a] = i, now.P[b] = j;
                                 if(f != i) continue;
-                                else if(f == i && is_in_range(u, i)){
+                                else if(f == i && is_in_range(a, i)){
                                     set<int> sy(s);
-                                    sy.erase(u);
+                                    sy.erase(a);
                                     state prv = state(by, sy, map<T,T>());
-                                    
-                                }else if(f == i && !is_in_range(u, i)){
-
+                                    prv.P[b] = j - edge_weight[{b, a}];
+                                    if(W_.count(prv)) {
+                                        W[now] = W_[prv] + weight[a];
+                                        W_[now] = W_[prv] + weight[a];
+                                    }
+                                }else if(f == i && !is_in_range(a, i)){
+                                    set<int> sy(s);
+                                    sy.erase(a);
+                                    state prv = state(by, sy, map<T,T>());
+                                    prv.P[b] = j - edge_weight[{b, a}];
+                                    if(W_.count(prv)) W_[now] = W_[prv] + weight[a];
                                 }
                             }
                     }else if(s.size() == 3){
-
+                        int t[3], ind=0;
+                        for(auto it = s.begin(); it != s.end(); ++it) t[ind++] = *it;
+                        for(int i = 1; i < ind; ++i) if(t[i] == v){ swap(t[i], t[0]); break;}
+                        
+                        for(int i = 0; i <= max_dg; ++i)
+                            for(int j = 0; j <= max_dg; ++j)
+                                for(int k = 0; k <= max_dg; ++k){
+                                    now.P[t[0]] = i, now.P[t[1]] = j, now.P[t[2]] = k;
+                                    if(f != i) continue;
+                                    else if(f == i && is_in_range(t[0], i)){
+                                        set<int> sy(s);
+                                        sy.erase(t[0]);
+                                        state prv = state(by, sy, map<T,T>());
+                                        prv.P[t[1]] = j - edge_weight[{t[1], t[0]}];
+                                        prv.P[t[2]] = k - edge_weight[{t[2], t[0]}];
+                                        if(W_.count(prv)) {
+                                            W[now] = W_[prv] + weight[t[0]];
+                                            W_[now] = W_[prv] + weight[t[0]];
+                                        }
+                                    }else if(f == i && !is_in_range(t[0], i)){
+                                        set<int> sy(s);
+                                        sy.erase(t[0]);
+                                        state prv = state(by, sy, map<T,T>());
+                                        prv.P[t[1]] = j - edge_weight[{t[1], t[0]}];
+                                        prv.P[t[2]] = k - edge_weight[{t[2], t[0]}];
+                                        if(W_.count(prv)) W_[now] = W_[prv] + weight[t[0]];
+                                    }
+                                }
                     }
 
                 }else{
