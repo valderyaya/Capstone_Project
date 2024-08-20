@@ -16,6 +16,12 @@
         "valarray": "cpp",
         "*.tcc": "cpp",
         "algorithm": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "span": "cpp",
+        "utility": "cpp",
+        "map": "cpp",
+        "xhash": "cpp",
+        "xstring": "cpp",
+        "xtree": "cpp"
     }
 }

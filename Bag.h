@@ -17,11 +17,11 @@ class Bag{
         Bag(set<T> V, int id):vertices(V), id(id){}
 
         bool operator!=(const Bag<T> w) const {
-            return (vertices != w.vertices) || (id != w.id);
+            return (id != w.id) || (vertices != w.vertices) ;
         }
 
         bool operator==(const Bag<T> w) const{
-            return (vertices == w.vertices) && (id == w.id);
+            return (id == w.id) && (vertices == w.vertices);
         }
 
         bool contains(T v) const{

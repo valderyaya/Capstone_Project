@@ -42,21 +42,17 @@ class DCSGQ{
 
         vector<set<int>> get_subset(set<int> s){
             vector<set<int>> ret;
-            if(s.size() == 2){
-                int t[2] = {*s.begin(), *s.rbegin()};
-                ret.emplace_back(set<int>({t[0]}));
-                ret.emplace_back(set<int>({t[1]}));
-                ret.emplace_back(set<int>({t[0], t[1]}));
-            }else if(s.size() == 3){    
-                int t[3], i = 0;
-                for(auto it=s.begin(); it != s.end(); ++it, ++i) t[i] = *it;
-                ret.emplace_back(set<int>({t[0]}));
-                ret.emplace_back(set<int>({t[1]}));
-                ret.emplace_back(set<int>({t[2]}));
-                ret.emplace_back(set<int>({t[0], t[1]}));
-                ret.emplace_back(set<int>({t[0], t[2]}));
-                ret.emplace_back(set<int>({t[1], t[2]}));
-                ret.emplace_back(set<int>({t[0], t[1], t[3]}));
+            int sz = s.size();
+            vector<int> t(sz);
+            int i = 0;
+            for(auto it = s.begin(); it != s.end(); ++it, ++i)
+                t[i] = *it;
+            
+            for(int i = 1; i < (1 << sz); ++i){
+                set<int> tmp;
+                for(int j = 0; j < sz; ++j)
+                    if((i >> j) & 1) tmp.insert(t[j]);
+                ret.emplace_back(tmp); 
             }
             return ret;
         }
@@ -240,7 +236,7 @@ class DCSGQ{
                                 if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
                             }
                         
-                        prv = state(bt, s, now.P);
+                        prv = state(by, s, now.P);
                         if(W.count(prv)) mx = max(mx, W[prv]);
                         if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
 
@@ -267,7 +263,7 @@ class DCSGQ{
                                         if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
                                     }
 
-                            prv = state(bt, s, now.P);
+                            prv = state(by, s, now.P);
                             if(W.count(prv)) mx = max(mx, W[prv]);
                             if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
 
@@ -295,9 +291,9 @@ class DCSGQ{
                             
                             if(W_.count(py) && W_.count(pz)){
                                 now.P[*s.begin()] = i + j;
-                                W_[now] = max(W_[now], W_[py] + W_[pz] - weight[*begin()]);
+                                W_[now] = max(W_[now], W_[py] + W_[pz] - weight[*s.begin()]);
                                 if(is_in_range(*s.begin(), i + j))
-                                    W[now] = max(W[now], W_[py] + W_[pz] - weight[*begin()]);
+                                    W[now] = max(W[now], W_[py] + W_[pz] - weight[*s.begin()]);
                             }
                         }
                     }
