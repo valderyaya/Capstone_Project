@@ -94,34 +94,6 @@ class DCSGQ{
             }
         }
 
-        void Enumerate(){
-            int N = s.size(), ind = 0, u_idx = -1;
-            vector<int> v(N, -1), elm(N);
-            for(auto &i: s){
-                if(i == u) u_idx = ind;
-                elm[ind++] = i;
-            }
-            state now = state(bx, s, map<T,T>());
-            stack<int> st;
-            st.push(0);
-
-            while(!st.empty()){
-                ind = st.top();
-                if(ind == (int)v.size()){
-                    st.pop();
-                    // transform
-
-                    continue;
-                }
-                if(v[ind] > max_dg){
-                    st.pop();
-                    v[ind] = 0;
-                    continue;
-                }
-                ++v[ind];
-                st.emplace(ind + 1);
-            }
-        }
 
         void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){ // missing p_x = 0 cases ?
             int u = ntd.specialVertex[bx];
@@ -189,6 +161,7 @@ class DCSGQ{
             }
         }
 
+
         void FORGET_transfer(Bag<T> bx, Bag<T> by){
             int u = ntd.specialVertex[bx];
             // W[state(bx, set<T>(), map<T,T>())] = 0;
@@ -198,8 +171,89 @@ class DCSGQ{
                 int N = s.size(), ind = 0, u_idx = -1;
                 vector<int> v(N, -1), elm(N);
                 for(auto &i: s){
+                    if(i == u) u_idx = ind, v[ind] = LowBound[u]-1;
+                    elm[ind++] = i;
+                }
+                state now = state(bx, s, map<T,T>());
+                stack<int> st;
+                st.push(0);
+                state now = state(bx, s, map<T,T>());
+
+                while(!st.empty()){
+                    ind = st.top();
+                    if(ind == (int)v.size()){
+                        st.pop();
+                        for(int i = 0; i < ind; ++i) now.P[elm[i]] = v[i];
+
+                        set<int> sy(s);
+                        sy.insert(u);
+                        state prv = state(by, sy, now.P);
+                        int mx = -INF, mx_ = -INF;
+                        for(int i = LowBound[u]; i <= UpBound[u]; ++i){
+                            prv.P[u] = i;
+                            if(W.count(prv)) mx = max(mx, W[prv]);
+                            if(W_.count(prv))  mx_ = max(mx_, W_[prv]);
+                        }
+                        prv.P = now.P;
+                        prv.S = s;
+                        if(W.count(prv)) mx = max(mx, W[prv]);
+                        if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
+                        if(mx != -INF) W[now] = mx;
+                        if(mx_ != -INF) W_[now] = mx_;
+                        continue;
+                    }
+                    if(v[ind] > max_dg){
+                        st.pop();
+                        v[ind] = 0;
+                        continue;
+                    }
+                    
+                    ++v[ind];
+                    st.emplace(ind + 1);
+                }
+            }
+        }
+
+        // void Enumerate(){
+        //     int N = s.size(), ind = 0, u_idx = -1;
+        //     vector<int> v(N, -1), elm(N);
+        //     for(auto &i: s){
+        //         if(i == u) u_idx = ind;
+        //         elm[ind++] = i;
+        //     }
+        //     state now = state(bx, s, map<T,T>());
+        //     stack<int> st;
+        //     st.push(0);
+
+        //     while(!st.empty()){
+        //         ind = st.top();
+        //         if(ind == (int)v.size()){
+        //             st.pop();
+                    
+        //             continue;
+        //         }
+        //         if(v[ind] > max_dg){
+        //             st.pop();
+        //             v[ind] = 0;
+        //             continue;
+        //         }
+        //         ++v[ind];
+        //         st.emplace(ind + 1);
+        //     }
+        // }
+
+ 
+        void JOIN_transfer(Bag<T> bx, Bag<T> by, Bag<T> bz){ // need optimize
+            // W[state(bx, set<T>(), map<T,T>())] = 0;
+            // W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            vector<set<int>> ss = get_subset(bx.vertices);
+            for(auto &s : ss){
+                int N = s.size(), ind = 0, u_idx = -1, tot = 0;
+                vector<int> v(N, -1), elm(N);
+                for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
+                    tot += weight[i];
                 }
                 state now = state(bx, s, map<T,T>());
                 stack<int> st;
@@ -210,7 +264,46 @@ class DCSGQ{
                     if(ind == (int)v.size()){
                         st.pop();
                         // transform
+                        int ind2 = 0;
+                        vector<int> v2(N, -1);
+                        stack<int> st2;
+                        st2.push(0);
+                        state py = state(by, s, map<T,T>());
+                        for(int i = 0; i < ind; ++i) py.P[elm[i]] = v[i];
+                        while(!st2.empty()){
+                            ind2 = st2.top();
+                            if(ind2 == (int)v2.size()){
+                                st2.pop();
+                                state pz = state(bz, s, map<T,T>());
+                                bool flag = 1;
+                                for(int i = 0, k; i < ind2; ++i){
+                                    pz.P[elm[i]] = v2[i];
 
+                                    k = v[i] + v2[i];
+                                    for(auto &j : elm) k -= edge_weight[{elm[i], j}];
+                                    
+                                    now.P[elm[i]] = k;
+                                    if(!is_in_range(elm[i], k)) flag = 0;
+                                }
+                                if(flag){
+                                    if(W_.count(py) && W_.count(pz)){
+                                        W[now] = max(W[now], W_[py] + W_[pz] - tot);
+                                        W_[now] = max(W_[now], W_[py] + W_[pz] - tot);
+                                    }
+                                }else{
+                                    if(W_.count(py) && W_.count(pz))
+                                        W_[now] = max(W_[now], W_[py] + W_[pz] - tot);
+                                }
+                                continue;
+                            }
+                            if(v2[ind2] > max_dg){
+                                st2.pop();
+                                v2[ind] = 0;
+                                continue;
+                            }
+                            ++v2[ind];
+                            st2.emplace(ind2 + 1);
+                        }
                         continue;
                     }
                     if(v[ind] > max_dg){
@@ -223,141 +316,5 @@ class DCSGQ{
                 }
             }
             
-            // ignore
-            for(auto &s : ss){
-                state now = state(bx, s, map<T,T>());
-                if(s.size() == 1){
-                    for(int i = 0; i <= max_dg; ++i){
-                        now.P[*s.begin()] = i;
-                        
-                        int mx = -INF, mx_ = -INF;
-                        set<int> sy(s);
-                        sy.insert(v);
-                        state prv = state(by, sy, map<T,T>());
-
-                        for(int j = 0; j <= max_dg; ++j)
-                            for(int k = LowBound[v]; k <= UpBound[v]; ++k){
-                                prv.P[*s.begin()] = j;
-                                prv.P[v] = k;
-                                if(W.count(prv)) mx = max(mx, W[prv]);
-                                if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
-                            }
-                        
-                        prv = state(by, s, now.P);
-                        if(W.count(prv)) mx = max(mx, W[prv]);
-                        if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
-
-                        W[now] = mx;
-                        W_[now] = mx_;
-                    }
-                }else if(s.size() == 2){ // need optimize
-                    int a = *s.begin(), b = *s.rbegin();
-                    if(a != v) swap(a, b);
-                    for(int i = 0; i <= max_dg; ++i)
-                        for(int j = 0; j <= max_dg; ++j){
-                            now.P[a] = i, now.P[b] = j;
-
-                            int mx = -INF, mx_ = -INF;
-                            set<int> sy(s);
-                            sy.insert(v);
-                            state prv = state(by, sy, map<T,T>());
-
-                            for(int ii = 0; ii <= max_dg; ++ii)
-                                for(int jj = 0; jj <= max_dg; ++jj)
-                                    for(int k = LowBound[v]; k <= UpBound[v]; ++k){
-                                        prv.P[a] = i, prv.P[b] = j, prv.P[v] = k;
-                                        if(W.count(prv)) mx = max(mx, W[prv]);
-                                        if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
-                                    }
-
-                            prv = state(by, s, now.P);
-                            if(W.count(prv)) mx = max(mx, W[prv]);
-                            if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
-
-                            if(mx != -INF) W[now] = mx;
-                            if(mx_ != -INF) W_[now] = mx_;
-                        }
-                } //else if(s.size() == 3){}
-            }
-        }
- 
-        void JOIN_transfer(Bag<T> bx, Bag<T> by, Bag<T> bz){
-            W[state(bx, set<T>(), map<T,T>())] = 0;
-            W_[state(bx, set<T>(), map<T,T>())] = 0; 
-            vector<set<int>> ss = get_subset(bx.vertices);
-            for(auto &s : ss){
-                state now = state(bx, s, map<T,T>());
-                if(s.size() == 1){
-                    for(int i = 0; i <= max_dg; ++i){
-                        state py = state(by, s, map<T,T>());
-                        py.P[*s.begin()] = i;
-                        for(int j = 0; j <= max_dg; ++j){
-                            if(i + j > max_dg) continue;
-                            state pz = state(bz, s, map<T,T>());
-                            pz.P[*s.begin()] = j;
-                            
-                            if(W_.count(py) && W_.count(pz)){
-                                now.P[*s.begin()] = i + j;
-                                W_[now] = max(W_[now], W_[py] + W_[pz] - weight[*s.begin()]);
-                                if(is_in_range(*s.begin(), i + j))
-                                    W[now] = max(W[now], W_[py] + W_[pz] - weight[*s.begin()]);
-                            }
-                        }
-                    }
-                }else if(s.size() == 2){
-                    int a = *s.begin(), b = *s.rbegin();
-                    for(int i = 0; i <= max_dg; ++i)
-                        for(int j = 0; j <= max_dg; ++j){
-                            state py = state(by, s, map<T,T>());
-                            py.P[a] = i, py.P[b] = j;
-
-                            for(int k = 0; k <= max_dg; ++k){
-                                if(i + k > max_dg) continue;
-                                for(int l = 0; l <= max_dg; ++l){
-                                    if(j + l > max_dg) continue;
-                                    state pz = state(bz, s, map<T,T>());
-                                    pz.P[a] = k, pz.P[b] = l;
-
-                                    if(W_.count(py) && W_.count(pz)){
-                                        now.P[a] = i + k, now.P[b] = j + l;
-                                        W_[now] = max(W_[now], W_[py] + W_[pz] - weight[a] - weight[b]);
-                                        if(is_in_range(a, i + k) && is_in_range(b, j + l))
-                                            W[now] = max(W[now], W_[py] + W_[pz] - weight[a] - weight[b]);
-                                    }
-                                }
-                            }
-                        }
-                }else if(s.size() == 3){
-                    int t[3], ind=0;
-                    for(auto it = s.begin(); it != s.end(); ++it) t[ind++] = *it;
-                    for(int i = 0; i <= max_dg; ++i)
-                        for(int j = 0; j <= max_dg; ++j)
-                            for(int k = 0; k <= max_dg; ++k){
-                                state py = state(by, s, map<T,T>());
-                                py.P[t[0]] = i, py.P[t[1]] = j, py.P[t[2]] = k;
-
-                                for(int ii = 0; ii <= max_dg; ++ii){
-                                    if(i + ii > max_dg) continue;
-                                    for(int jj = 0; jj <= max_dg; ++jj){
-                                        if(j + jj > max_dg) continue;
-                                        for(int kk = 0; kk <= max_dg; ++kk){
-                                            if(k + kk > max_dg) continue;
-                                            state pz = state(bz, s, map<T,T>());
-                                            pz.P[t[0]] = ii, pz.P[t[1]] = jj, pz.P[t[2]] = kk;
-
-                                            if(W_.count(py) && W_.count(pz)){
-                                                now.P[t[0]] = i + ii;
-                                                now.P[t[1]] = j + jj;
-                                                now.P[t[2]] = k + kk;
-                                                W_[now] = max(W_[now], W_[py] + W_[pz] - weight[t[0]] - weight[t[1]] - weight[t[2]]);
-                                                if(is_in_range(t[0], i + ii) && is_in_range(t[1], j + jj) && is_in_range(t[2], k + kk))
-                                                    W[now] = max(W[now], W_[py] + W_[pz] - weight[t[0]] - weight[t[1]] - weight[t[2]]);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                }
-            }
         }
 };

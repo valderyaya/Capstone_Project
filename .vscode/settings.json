@@ -23,6 +23,9 @@
         "xhash": "cpp",
         "xstring": "cpp",
         "xtree": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "any": "cpp",
+        "ranges": "cpp",
+        "stacktrace": "cpp"
     }
 }
