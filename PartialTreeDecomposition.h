@@ -93,15 +93,19 @@ class PartialTreeDecomposition{
         void build_partial_treedecomposition(){
             // set<Bag<T>> neighbours;
             // for(auto &i: treeDecomposition.tree.adj[b]) neighbours.insert(i);
-            MaximumClique<int> clq(treeDecomposition.graph.adj.size());
+            int n = treeDecomposition.graph.adj.size();
+            MaximumClique<int> clq(n);
 
             for(auto it = treeDecomposition.graph.adj.begin(); it != treeDecomposition.graph.adj.end(); ++it)
                 for(auto jt : it->second) clq.add_edge(it->first, jt);
             clq.maximum_clique();
             set<int> ss;
             for(auto &i: clq.ans) ss.insert(i);
+            set<int> all;
+            for(int i = 1; i <= n; ++i) all.insert(i);
+
             Bag<T> tag(ss, 0);
-            Graph<T> g = to_graph(tag);
+            Graph<T> g = to_graph(Bag<T>(all, 0));
 
             for(auto &i : clq.ans) g.remove_vertex(i);
             vector<set<T>> cs =  g.get_connected_components();
@@ -140,6 +144,7 @@ class PartialTreeDecomposition{
                 }
             }while(flag == 1);
             niceTreeDecomposition.treeDecomposition.renumber();
+            cout << niceTreeDecomposition.treeDecomposition.isValid() << endl;
             print_graph_bag(niceTreeDecomposition.treeDecomposition.tree);
             // return niceTreeDecomposition;
         }
