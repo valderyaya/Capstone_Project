@@ -2,6 +2,7 @@
 #include<map>
 #include "Bag.h"
 #include "Graph.h"
+#include<stack>
 #include "TreeDecomposition.h"
 #include "NiceTreeDecomposition.h"
 #include "Graph_CFS.h"
@@ -59,8 +60,8 @@ class DCSGQ{
 
         void LEAF_trasfer(Bag<T> b){
             T v = ntd.specialVertex[b];
-            W[state(b, set<T>(), map<T,T>())] = 0;
-            W_[state(b, set<T>(), map<T,T>())] = 0; 
+            // W[state(b, set<T>(), map<T,T>())] = 0;
+            // W_[state(b, set<T>(), map<T,T>())] = 0; 
             if((UpBound[v] >= 0 && 0 >= LowBound[v]) || LowBound[v] == 0){ // case 1
                 state sta(b, b.vertices, map<T, T>());
                 sta.P[v] = 0;
@@ -93,130 +94,136 @@ class DCSGQ{
             }
         }
 
+        void Enumerate(){
+            int N = s.size(), ind = 0, u_idx = -1;
+            vector<int> v(N, -1), elm(N);
+            for(auto &i: s){
+                if(i == u) u_idx = ind;
+                elm[ind++] = i;
+            }
+            state now = state(bx, s, map<T,T>());
+            stack<int> st;
+            st.push(0);
+
+            while(!st.empty()){
+                ind = st.top();
+                if(ind == (int)v.size()){
+                    st.pop();
+                    // transform
+
+                    continue;
+                }
+                if(v[ind] > max_dg){
+                    st.pop();
+                    v[ind] = 0;
+                    continue;
+                }
+                ++v[ind];
+                st.emplace(ind + 1);
+            }
+        }
+
         void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){ // missing p_x = 0 cases ?
-            int v = ntd.specialVertex[bx];
-            W[state(bx, set<T>(), map<T,T>())] = 0;
-            W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            int u = ntd.specialVertex[bx];
+            // W[state(bx, set<T>(), map<T,T>())] = 0;
+            // W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                if(s.count(v)){
-                    int f = 0;
-                    for(auto it = s.begin(); it != s.end(); ++it)
-                        if(*it != v) f += edge_weight[{v, *it}];  // calculate condition 8
-                    
-                    state now = state(bx, s, map<T,T>());
-                    if(s.size() == 1){
-                        for(int u = *s.begin(), i = 0; i <= max_dg; ++i){
-                            now.P[u] = i;
+                int N = s.size(), ind = 0, u_idx = -1;
+                vector<int> v(N, -1), elm(N);
+                for(auto &i: s){
+                    if(i == u) u_idx = ind;
+                    elm[ind++] = i;
+                }
+                state now = state(bx, s, map<T,T>());
+
+                stack<int> st;
+                st.push(0);
+
+
+                while(!st.empty()){ // enumerate
+                    ind = st.top();
+                    if(ind == (int)v.size()){// transform
+                        st.pop();
+                        for(int i = 0; i < ind; ++i) now.P[elm[i]] = v[i];
+                        
+                        if(s.count(u)){
+                            int f = 0;
+                            for(auto it = s.begin(); it != s.end(); ++it) f += edge_weight[{v, *it}]; // calculate condition 8
                             if(f != i) continue;
-                            else if(f == i && is_in_range(u, i)){
-                                set<int> sy(s);
-                                sy.erase(u);
-                                state prv = state(by, sy, map<T,T>());
+
+                            set<int> sy(s);
+                            sy.erase(u);
+                            state prv = state(by, sy, map<T,T>());
+                            for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
+                            
+                            int tmp = v[u_idx];
+                            for(auto &i : sy) tmp -= edge_weight[{u, i}];
+                            prv.P[u] = tmp; // P_sy
+
+                            if(f == i && is_in_range(u, v[u_idx])){
                                 if(W_.count(prv)){
                                     W[now] = W_[prv] + weight[u];
                                     W_[now] = W_[prv] + weight[u];
                                 }
-                            }else if(f == i && !is_in_range(u, i)){
-                                set<int> sy(s);
-                                sy.erase(u);
-                                state prv = state(by, sy, map<T,T>());
+                            }else if(f == i && !is_in_range(u, v[u_idx]))
                                 if(W_.count(prv)) W_[now] = W_[prv] + weight[u];
-                            }
-                        }
-                    }else if(s.size() == 2){
-                        int a = *s.begin(), b = *s.rbegin();
-                        if(a != v) swap(a, b);
-                        for(int i = 0; i <= max_dg; ++i)
-                            for(int j = 0; j <= max_dg; ++j){
-                                now.P[a] = i, now.P[b] = j;
-                                if(f != i) continue;
-                                else if(f == i && is_in_range(a, i)){
-                                    set<int> sy(s);
-                                    sy.erase(a);
-                                    state prv = state(by, sy, map<T,T>());
-                                    prv.P[b] = j - edge_weight[{b, a}];
-                                    if(W_.count(prv)) {
-                                        W[now] = W_[prv] + weight[a];
-                                        W_[now] = W_[prv] + weight[a];
-                                    }
-                                }else if(f == i && !is_in_range(a, i)){
-                                    set<int> sy(s);
-                                    sy.erase(a);
-                                    state prv = state(by, sy, map<T,T>());
-                                    prv.P[b] = j - edge_weight[{b, a}];
-                                    if(W_.count(prv)) W_[now] = W_[prv] + weight[a];
-                                }
-                            }
-                    }else if(s.size() == 3){
-                        int t[3], ind=0;
-                        for(auto it = s.begin(); it != s.end(); ++it) t[ind++] = *it;
-                        for(int i = 1; i < ind; ++i) if(t[i] == v){ swap(t[i], t[0]); break;}
-                        
-                        for(int i = 0; i <= max_dg; ++i)
-                            for(int j = 0; j <= max_dg; ++j)
-                                for(int k = 0; k <= max_dg; ++k){
-                                    now.P[t[0]] = i, now.P[t[1]] = j, now.P[t[2]] = k;
-                                    if(f != i) continue;
-                                    else if(f == i && is_in_range(t[0], i)){
-                                        set<int> sy(s);
-                                        sy.erase(t[0]);
-                                        state prv = state(by, sy, map<T,T>());
-                                        prv.P[t[1]] = j - edge_weight[{t[1], t[0]}];
-                                        prv.P[t[2]] = k - edge_weight[{t[2], t[0]}];
-                                        if(W_.count(prv)) {
-                                            W[now] = W_[prv] + weight[t[0]];
-                                            W_[now] = W_[prv] + weight[t[0]];
-                                        }
-                                    }else if(f == i && !is_in_range(t[0], i)){
-                                        set<int> sy(s);
-                                        sy.erase(t[0]);
-                                        state prv = state(by, sy, map<T,T>());
-                                        prv.P[t[1]] = j - edge_weight[{t[1], t[0]}];
-                                        prv.P[t[2]] = k - edge_weight[{t[2], t[0]}];
-                                        if(W_.count(prv)) W_[now] = W_[prv] + weight[t[0]];
-                                    }
-                                }
-                    }
 
-                }else{
-                    state prv = state(by, s, map<T,T>()), now = state(bx, s, map<T,T>());
-                    if(s.size() == 1){
-                        for(int u = *s.begin(), i = 0; i <= max_dg; ++i){
-                            prv.P[u] = now.P[u] = i;
+                        }else{ // case 1
+                            state prv = state(by, s, map<T,T>());
+                            for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
                             if(W.count(prv)) W[now] = W[prv];
                             if(W_.count(prv)) W_[now] = W_[prv];
                         }
-                    }else if(s.size() == 2){
-                        int a = *s.begin(), b = *s.rbegin();
-                        for(int i = 0; i <= max_dg; ++i)
-                            for(int j = 0; j <= max_dg; ++j){
-                                prv.P[a] = i, prv.P[b] = j;
-                                now.P[a] = i, now.P[b] = j;
-                                if(W.count(prv)) W[now] = W[prv];
-                                if(W_.count(prv)) W_[now] = W_[prv];
-                            }
-                    }else if(s.size() == 3){
-                        int t[3], ind=0;
-                        for(auto it = s.begin(); it != s.end(); ++it) t[ind++] = *it;
-                        for(int i = 0; i <= max_dg; ++i)
-                            for(int j = 0; j <= max_dg; ++j)
-                                for(int k = 0; k <= max_dg; ++k){
-                                    prv.P[t[0]] = i, prv.P[t[1]] = j, prv.P[t[2]] = k;
-                                    now.P[t[0]] = i, now.P[t[1]] = j, now.P[t[2]] = k;
-                                    if(W.count(prv)) W[now] = W[prv];
-                                    if(W_.count(prv)) W_[now] = W_[prv];
-                                }
+                        continue;
                     }
+                    if(v[ind] > max_dg){
+                        st.pop();
+                        v[ind] = 0;
+                        continue;
+                    }
+                    ++v[ind];
+                    st.emplace(ind + 1);
                 }
+                
             }
         }
 
         void FORGET_transfer(Bag<T> bx, Bag<T> by){
-            int v = ntd.specialVertex[bx];
-            W[state(bx, set<T>(), map<T,T>())] = 0;
-            W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            int u = ntd.specialVertex[bx];
+            // W[state(bx, set<T>(), map<T,T>())] = 0;
+            // W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
+            for(auto &s : ss){
+                int N = s.size(), ind = 0, u_idx = -1;
+                vector<int> v(N, -1), elm(N);
+                for(auto &i: s){
+                    if(i == u) u_idx = ind;
+                    elm[ind++] = i;
+                }
+                state now = state(bx, s, map<T,T>());
+                stack<int> st;
+                st.push(0);
+
+                while(!st.empty()){
+                    ind = st.top();
+                    if(ind == (int)v.size()){
+                        st.pop();
+                        // transform
+
+                        continue;
+                    }
+                    if(v[ind] > max_dg){
+                        st.pop();
+                        v[ind] = 0;
+                        continue;
+                    }
+                    ++v[ind];
+                    st.emplace(ind + 1);
+                }
+            }
+            
+            // ignore
             for(auto &s : ss){
                 state now = state(bx, s, map<T,T>());
                 if(s.size() == 1){

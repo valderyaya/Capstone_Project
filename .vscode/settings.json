@@ -22,6 +22,7 @@
         "map": "cpp",
         "xhash": "cpp",
         "xstring": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "stack": "cpp"
     }
 }
