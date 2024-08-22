@@ -121,8 +121,8 @@ class DCSGQ{
                         
                         if(s.count(u)){
                             int f = 0;
-                            for(auto it = s.begin(); it != s.end(); ++it) f += edge_weight[{v, *it}]; // calculate condition 8
-                            if(f != i) continue;
+                            for(auto it = s.begin(); it != s.end(); ++it) f += edge_weight[{u, *it}]; // calculate condition 8
+                            if(f != v[u_idx]) continue;
 
                             set<int> sy(s);
                             sy.erase(u);
@@ -133,12 +133,12 @@ class DCSGQ{
                             for(auto &i : sy) tmp -= edge_weight[{u, i}];
                             prv.P[u] = tmp; // P_sy
 
-                            if(f == i && is_in_range(u, v[u_idx])){
+                            if(f == v[u_idx] && is_in_range(u, v[u_idx])){
                                 if(W_.count(prv)){
                                     W[now] = W_[prv] + weight[u];
                                     W_[now] = W_[prv] + weight[u];
                                 }
-                            }else if(f == i && !is_in_range(u, v[u_idx]))
+                            }else if(f == v[u_idx] && !is_in_range(u, v[u_idx]))
                                 if(W_.count(prv)) W_[now] = W_[prv] + weight[u];
 
                         }else{ // case 1
@@ -177,7 +177,6 @@ class DCSGQ{
                 state now = state(bx, s, map<T,T>());
                 stack<int> st;
                 st.push(0);
-                state now = state(bx, s, map<T,T>());
 
                 while(!st.empty()){
                     ind = st.top();
@@ -248,10 +247,9 @@ class DCSGQ{
             // W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0, u_idx = -1, tot = 0;
+                int N = s.size(), ind = 0,  tot = 0;
                 vector<int> v(N, -1), elm(N);
                 for(auto &i: s){
-                    if(i == u) u_idx = ind;
                     elm[ind++] = i;
                     tot += weight[i];
                 }
@@ -316,5 +314,9 @@ class DCSGQ{
                 }
             }
             
+        }
+
+        set<int> BackTrack(Bag<T> B, set<T> S, map<T,T> P, bool type){
+            if(ntd.bagType[B] == )
         }
 };

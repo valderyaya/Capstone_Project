@@ -13,7 +13,7 @@ using namespace std;
 #include "Dinic.h"
 #include "Debug_func.h"
 #include "DCSGQ.h"
-#include "PartialTreeDecomposition.h"
+// #include "PartialTreeDecomposition.h"
 
 
 int main(){ // for partial tree decomposition
