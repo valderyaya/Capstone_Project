@@ -316,7 +316,59 @@ class DCSGQ{
             
         }
 
+        void solve(){
+            stack<Bag<T>> st;
+            set<Bag<T>> vis;
+            st.push(root);
+            vis.insert(root);
+
+            while(!st.empty()){
+                Bag<T> v = st.top();
+
+                if(ntd.bagType[v] == 0){
+                    LEAF_trasfer(v);
+                    st.pop();
+                    continue;
+                }
+
+                bool flag = 0;
+                for(Bag<T> w : treeDecomposition.tree.adj[v]){
+                    if(vis.count(w)) continue;
+                    st.push(w);
+                    vis.insert(w);
+                    flag = 1;
+                }
+
+                if(flag) continue;
+                if(ntd.bagType[v] == 1)// introduce
+                    INTRODUCE_transfer(v, ntd.childrenBag[v][0]);
+                else if(ntd.bagType[v] == 2)// forget
+                    FORGET_transfer(v, ntd.childrenBag[v][1]);
+                else if(ntd.bagType[v] == 3)
+                    JOIN_transfer(v, ntd.childrenBag[v][0], ntd.childrenBag[v][1]);
+
+                st.pop();
+            }
+        }
+
         set<int> BackTrack(Bag<T> B, set<T> S, map<T,T> P, bool type){
-            if(ntd.bagType[B] == )
+            if(ntd.bagType[B] == 0)
+                return B.vertices; // leaf
+            
+            if(ntd.bagType[B] == 1){ // introduce
+                int u = ntd.specialVertex[B];
+                Bag<T> By = ntd.childrenBag[B][0];
+                if(!B.contains(u))
+                    return BackTrack(By, S, P, type);
+                else{
+                    set<T> Sy(S);
+
+                }
+            }else if(ntd.bagType[B] == 2){//forget
+
+
+            }else if(ntd.bagType[B] == 3){//join
+
+            }
         }
 };

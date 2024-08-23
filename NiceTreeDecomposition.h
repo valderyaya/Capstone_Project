@@ -22,7 +22,7 @@ class NiceTreeDecomposition{
         map<Bag<T>, T> specialVertex;
         map<Bag<T>, T> secondSpecialVertex;
         Bag<T> root;
-        set<Bag<T>> partial_check; // for partial tree decomposition
+        map<Bag<T>, vector<Bag<T>>> childrenBag;
         bool veryNice;
 
         NiceTreeDecomposition(const TreeDecomposition<T> &orignal){
@@ -35,11 +35,15 @@ class NiceTreeDecomposition{
         }
 
 
-        Bag<T> findSuitableRoot(){
+        Bag<T> findSuitableRoot(int initiator = -1){
+            if(initiator != -1)            
+                for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it)
+                    if(it->first.contains(initiator)) return it->first;
+
             return treeDecomposition.tree.adj.begin()->first;
         }
 
-        Bag<T> make_nice(Bag<T> suitableRoot, Bag<T> tag = Bag<T>()){
+        Bag<T> make_nice(Bag<T> suitableRoot){
             //Graph<Bag<T>> tree = &treeDecomposition.tree;
             Bag<T> rt = treeDecomposition.create_Bag(set<T>());
             treeDecomposition.tree.add_vertex(rt);
@@ -48,7 +52,6 @@ class NiceTreeDecomposition{
             stack<Bag<T>> st;
             set<Bag<T>> vis;
             st.push(rt);
-            Bag<T> ept = Bag<T>();
             // int c = 0;
             while(!st.empty()){
                 // cout << ++c <<endl;
@@ -56,10 +59,6 @@ class NiceTreeDecomposition{
                 st.pop();
                 vis.insert(v);
                 
-                if(tag != ept) {
-                    partial_check.insert(v);
-                    if(v == tag) continue;
-                }
                 int cnt = 0;
                 Bag<T> ww;
                 for(auto &i : treeDecomposition.tree.adj[v])
@@ -122,7 +121,7 @@ class NiceTreeDecomposition{
                 if(it->first.vertices.empty()) 
                     empt.emplace_back(it->first);
             for(auto &i : empt) treeDecomposition.tree.remove_vertex(i);
-            if(tag == ept) treeDecomposition.renumber();
+            treeDecomposition.renumber();
             return treeDecomposition.tree.adj.begin()->first;
             //return rt;
         }
@@ -136,10 +135,17 @@ class NiceTreeDecomposition{
             while(!st.empty()){
                 Bag<T> v = st.top();
                 st.pop();
-                if(treeDecomposition.tree.adj[v].size() == 3) bagType[v] = BagType::JOIN;
+                vector<Bag<T>> children;
+
+                if(treeDecomposition.tree.adj[v].size() == 3){
+                    bagType[v] = BagType::JOIN;
+                    for(Bag<T> w : treeDecomposition.tree.adj[v])
+                        if(!vis.count(w)) children.emplace_back(w);
+                }
                 for(Bag<T> w : treeDecomposition.tree.adj[v]){
                     if(vis.count(w)) continue;
                     if(bagType.find(v) == bagType.end()){
+                        children.emplace_back(w);
                         set<T> diff;
                         set_difference(v.vertices.begin(), v.vertices.end(), w.vertices.begin(), w.vertices.end(), inserter(diff, diff.end()));
                         if(diff.size() == 1){
@@ -156,6 +162,7 @@ class NiceTreeDecomposition{
                     st.push(w);
                 }
                 if(bagType.find(v) == bagType.end()) bagType[v] = BagType::LEAF;
+                childrenBag[v] = children;
             }
         }
 
