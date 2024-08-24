@@ -12,29 +12,38 @@ using namespace std;
 template<typename T>
 class DCSGQ{
     public:
-        const int INF = 2147483647;
-        vector<int> UpBound, LowBound, weight;
-        map<pair<int, int>, int> edge_weight; 
-        NiceTreeDecomposition<T> ntd;
-        int H, Initiator, n, max_dg;
         struct state{
             Bag<T> B;
             set<T> S;
             map<T, T> P;
+            state() : B(), S(), P() {}
             state(Bag<T> b, set<T> s, map<T, T> p):B(b),S(s),P(p){}
             bool operator<(const state &d)const{
                 if(B != d.B) return B < d.B;
                 if(S != d.S) return S < d.S;
-                if(P != d.P) return P < d.P;
+                return P < d.P;
             }
         };
+
+        const int INF = 2147483647;
+        vector<int> UpBound, LowBound, weight;
+        map<pair<int, int>, int> edge_weight; 
+        NiceTreeDecomposition<T> ntd;
+        map<state, vector<state>> from;
+        // map<state, int> from_;
         map<state, int> W, W_;
+        map<Bag<T>, state> max_state;
+        map<Bag<T>, int> max_value;
+        state max_root_state;
+        int H, Initiator, n, max_dg;
+        
+        
         DCSGQ(NiceTreeDecomposition<T> &x):ntd(x){}
 
         void initialization(){
             max_dg = 0;
-            for(auto &it : ntd.treeDecomposition.graph.adj)
-                max_dg = max(max_dg, it->second.size());
+            for(auto it = ntd.treeDecomposition.graph.adj.begin(); it != ntd.treeDecomposition.graph.adj.end(); ++it)
+                max_dg = max(max_dg, (int)it->second.size());
         }
 
         bool is_in_range(int v, int w){
@@ -67,6 +76,8 @@ class DCSGQ{
                 sta.P[v] = 0;
                 W[sta] = weight[v];
                 W_[sta] = weight[v];
+                max_state[b] = sta;
+                max_value[b] = weight[v];
                 // for(int i = LowBound[v]; i <= UpBound[v]; ++i){
                 //     sta.P[v] = i;
                 //     if(i == 0){
@@ -135,8 +146,15 @@ class DCSGQ{
 
                             if(f == v[u_idx] && is_in_range(u, v[u_idx])){
                                 if(W_.count(prv)){
-                                    W[now] = W_[prv] + weight[u];
+                                    int val = W_[prv] + weight[u] ;
+                                    W[now] = val;
                                     W_[now] = W_[prv] + weight[u];
+                                    from[now] = vector<state>{prv};
+                                    if(val > max_value[bx]){
+                                        max_value[bx] = val;
+                                        max_state[bx] = now;
+                                    }
+                                    // from_[now] = 2;
                                 }
                             }else if(f == v[u_idx] && !is_in_range(u, v[u_idx]))
                                 if(W_.count(prv)) W_[now] = W_[prv] + weight[u];
@@ -144,7 +162,16 @@ class DCSGQ{
                         }else{ // case 1
                             state prv = state(by, s, map<T,T>());
                             for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
-                            if(W.count(prv)) W[now] = W[prv];
+                            if(W.count(prv)){
+                                int val = W[prv];
+                                W[now] = W[prv];
+                                from[now] = vector<state>{prv};
+                                // from_[now] = 1;
+                                if(val > max_value[bx]){
+                                    max_value[bx] = val;
+                                    max_state[bx] = now;
+                                }
+                            }
                             if(W_.count(prv)) W_[now] = W_[prv];
                         }
                         continue;
@@ -186,18 +213,38 @@ class DCSGQ{
 
                         set<int> sy(s);
                         sy.insert(u);
-                        state prv = state(by, sy, now.P);
+                        state prv = state(by, sy, now.P), from_state;
                         int mx = -INF, mx_ = -INF;
                         for(int i = LowBound[u]; i <= UpBound[u]; ++i){
                             prv.P[u] = i;
-                            if(W.count(prv)) mx = max(mx, W[prv]);
+                            if(W.count(prv)){
+                                int val = W[prv];
+                                if(val > mx){
+                                    mx = val;
+                                    from_state = prv;
+                                }
+                            }
                             if(W_.count(prv))  mx_ = max(mx_, W_[prv]);
                         }
                         prv.P = now.P;
                         prv.S = s;
-                        if(W.count(prv)) mx = max(mx, W[prv]);
+                        if(W.count(prv)){
+                            int val = W[prv];
+                            if(val > mx){
+                                mx = val;
+                                from_state = prv;
+                            }
+                        }
                         if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
-                        if(mx != -INF) W[now] = mx;
+                        if(mx != -INF){
+                            W[now] = mx;
+                            from[now] = vector<state>{from_state};
+                            // from_[now] = 1;
+                            if(mx > max_value[bx]){
+                                max_value[bx] = mx;
+                                max_state[bx] = now;
+                            }
+                        }
                         if(mx_ != -INF) W_[now] = mx_;
                         continue;
                     }
@@ -285,7 +332,16 @@ class DCSGQ{
                                 }
                                 if(flag){
                                     if(W_.count(py) && W_.count(pz)){
-                                        W[now] = max(W[now], W_[py] + W_[pz] - tot);
+                                        int val = W_[py] + W_[pz] - tot;
+                                        if(val > W[now]){
+                                            W[now] = val;
+                                            from[now] = vector<state>{py, pz};
+                                            // from_[now] = 2;
+                                            if(val > max_value[bx]){
+                                                max_value[bx] = val;
+                                                max_state[bx] = now;
+                                            }
+                                        }
                                         W_[now] = max(W_[now], W_[py] + W_[pz] - tot);
                                     }
                                 }else{
@@ -316,23 +372,46 @@ class DCSGQ{
             
         }
 
+        set<int> BackTrack(state now){
+            int tag = static_cast<int>(ntd.bagType[now.B]);
+            if(tag == 0)
+                return now.B.vertices; // leaf
+            
+            if(tag == 1){ // introduce
+                int u = ntd.specialVertex[now.B];
+                set<T> ret = BackTrack(from[now][0]);
+                if(now.S.count(u))
+                    ret.insert(u);
+                return ret;
+                
+            }else if(tag == 2){//forget
+                return BackTrack(from[now][0]);
+
+            }else if(tag == 3){//join
+                set<T> x = BackTrack(from[now][0]), y = BackTrack(from[now][1]);
+                for(auto &i:y) x.insert(i);
+                return x;
+            }
+        }
+
         void solve(){
             stack<Bag<T>> st;
             set<Bag<T>> vis;
-            st.push(root);
-            vis.insert(root);
+            st.push(ntd.root);
+            vis.insert(ntd.root);
 
             while(!st.empty()){
                 Bag<T> v = st.top();
-
-                if(ntd.bagType[v] == 0){
+                int tag = static_cast<int>(ntd.bagType[v]);
+                cout << v.id << endl;
+                if(tag == 0){
                     LEAF_trasfer(v);
                     st.pop();
                     continue;
                 }
 
                 bool flag = 0;
-                for(Bag<T> w : treeDecomposition.tree.adj[v]){
+                for(Bag<T> w : ntd.treeDecomposition.tree.adj[v]){
                     if(vis.count(w)) continue;
                     st.push(w);
                     vis.insert(w);
@@ -340,35 +419,24 @@ class DCSGQ{
                 }
 
                 if(flag) continue;
-                if(ntd.bagType[v] == 1)// introduce
+                
+                if(tag == 1)// introduce
                     INTRODUCE_transfer(v, ntd.childrenBag[v][0]);
-                else if(ntd.bagType[v] == 2)// forget
+                else if(tag == 2)// forget
                     FORGET_transfer(v, ntd.childrenBag[v][1]);
-                else if(ntd.bagType[v] == 3)
+                else if(tag == 3)
                     JOIN_transfer(v, ntd.childrenBag[v][0], ntd.childrenBag[v][1]);
 
                 st.pop();
             }
-        }
-
-        set<int> BackTrack(Bag<T> B, set<T> S, map<T,T> P, bool type){
-            if(ntd.bagType[B] == 0)
-                return B.vertices; // leaf
             
-            if(ntd.bagType[B] == 1){ // introduce
-                int u = ntd.specialVertex[B];
-                Bag<T> By = ntd.childrenBag[B][0];
-                if(!B.contains(u))
-                    return BackTrack(By, S, P, type);
-                else{
-                    set<T> Sy(S);
-
-                }
-            }else if(ntd.bagType[B] == 2){//forget
-
-
-            }else if(ntd.bagType[B] == 3){//join
-
-            }
+            
+            Bag<T> start = ntd.childrenBag[ntd.root][0];
+            set<T> ans = BackTrack(max_state[start]);
+            cout << "Ans: " << max_value[start]; 
+            for(auto &i: ans ) cout << i << ' ';
+            cout << "\n";
         }
+
+        
 };

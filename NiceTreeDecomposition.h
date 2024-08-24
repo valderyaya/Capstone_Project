@@ -35,11 +35,7 @@ class NiceTreeDecomposition{
         }
 
 
-        Bag<T> findSuitableRoot(int initiator = -1){
-            if(initiator != -1)            
-                for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it)
-                    if(it->first.contains(initiator)) return it->first;
-
+        Bag<T> findSuitableRoot(){
             return treeDecomposition.tree.adj.begin()->first;
         }
 
@@ -118,12 +114,12 @@ class NiceTreeDecomposition{
             }
             vector<Bag<T>> empt;
             for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it) 
-                if(it->first.vertices.empty()) 
+                if(it->first.vertices.empty() && it->first != rt) 
                     empt.emplace_back(it->first);
             for(auto &i : empt) treeDecomposition.tree.remove_vertex(i);
             treeDecomposition.renumber();
             return treeDecomposition.tree.adj.begin()->first;
-            //return rt;
+            // return rt;
         }
 
         void classify_bags(){
