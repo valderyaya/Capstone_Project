@@ -406,7 +406,7 @@ class DCSGQ{
             while(!st.empty()){
                 Bag<T> v = st.top();
                 int tag = static_cast<int>(ntd.bagType[v]);
-                // cout << v.id << endl;
+                
                 if(tag == 0){
                     LEAF_trasfer(v);
                     st.pop();
@@ -429,7 +429,8 @@ class DCSGQ{
                     FORGET_transfer(v, ntd.childrenBag[v][0]);
                 else if(tag == 3)
                     JOIN_transfer(v, ntd.childrenBag[v][0], ntd.childrenBag[v][1]);
-
+                // cout << v.id << ' ' << max_value[v] << endl;
+                // state tmp = max_state[v];
                 st.pop();
             }
             
