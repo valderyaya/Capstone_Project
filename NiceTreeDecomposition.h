@@ -157,7 +157,10 @@ class NiceTreeDecomposition{
                     vis.insert(w);
                     st.push(w);
                 }
-                if(bagType.find(v) == bagType.end()) bagType[v] = BagType::LEAF;
+                if(bagType.find(v) == bagType.end()){
+                    bagType[v] = BagType::LEAF;
+                    specialVertex[v] = *v.vertices.begin();
+                }
                 childrenBag[v] = children;
             }
         }

@@ -69,8 +69,8 @@ class DCSGQ{
 
         void LEAF_trasfer(Bag<T> b){
             T v = ntd.specialVertex[b];
-            // W[state(b, set<T>(), map<T,T>())] = 0;
-            // W_[state(b, set<T>(), map<T,T>())] = 0; 
+            W[state(b, set<T>(), map<T,T>())] = 0;
+            W_[state(b, set<T>(), map<T,T>())] = 0; 
             if((UpBound[v] >= 0 && 0 >= LowBound[v]) || LowBound[v] == 0){ // case 1
                 state sta(b, b.vertices, map<T, T>());
                 sta.P[v] = 0;
@@ -108,8 +108,8 @@ class DCSGQ{
 
         void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){ // missing p_x = 0 cases ?
             int u = ntd.specialVertex[bx];
-            // W[state(bx, set<T>(), map<T,T>())] = 0;
-            // W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            W[state(bx, set<T>(), map<T,T>())] = 0;
+            W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, u_idx = -1;
@@ -138,17 +138,18 @@ class DCSGQ{
                             set<int> sy(s);
                             sy.erase(u);
                             state prv = state(by, sy, map<T,T>());
-                            for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
-                            
-                            int tmp = v[u_idx];
-                            for(auto &i : sy) tmp -= edge_weight[{u, i}];
-                            prv.P[u] = tmp; // P_sy
+                            if(!sy.empty()){
+                                prv.P = now.P;
+                                prv.P.erase(u);
+                                for(auto it = prv.P.begin(); it != prv.P.end(); ++it)
+                                    it->second -= edge_weight[{it->first, u}];
+                            }
 
                             if(f == v[u_idx] && is_in_range(u, v[u_idx])){
                                 if(W_.count(prv)){
                                     int val = W_[prv] + weight[u] ;
                                     W[now] = val;
-                                    W_[now] = W_[prv] + weight[u];
+                                    W_[now] = val;
                                     from[now] = vector<state>{prv};
                                     if(val > max_value[bx]){
                                         max_value[bx] = val;
@@ -164,7 +165,7 @@ class DCSGQ{
                             for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
                             if(W.count(prv)){
                                 int val = W[prv];
-                                W[now] = W[prv];
+                                W[now] = val;
                                 from[now] = vector<state>{prv};
                                 // from_[now] = 1;
                                 if(val > max_value[bx]){
@@ -176,9 +177,9 @@ class DCSGQ{
                         }
                         continue;
                     }
-                    if(v[ind] > max_dg){
+                    if(v[ind] >= max_dg){
                         st.pop();
-                        v[ind] = 0;
+                        v[ind] = -1;
                         continue;
                     }
                     ++v[ind];
@@ -191,14 +192,14 @@ class DCSGQ{
 
         void FORGET_transfer(Bag<T> bx, Bag<T> by){
             int u = ntd.specialVertex[bx];
-            // W[state(bx, set<T>(), map<T,T>())] = 0;
-            // W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            W[state(bx, set<T>(), map<T,T>())] = 0;
+            W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, u_idx = -1;
                 vector<int> v(N, -1), elm(N);
                 for(auto &i: s){
-                    if(i == u) u_idx = ind, v[ind] = LowBound[u]-1;
+                    if(i == u) u_idx = ind;
                     elm[ind++] = i;
                 }
                 state now = state(bx, s, map<T,T>());
@@ -248,9 +249,9 @@ class DCSGQ{
                         if(mx_ != -INF) W_[now] = mx_;
                         continue;
                     }
-                    if(v[ind] > max_dg){
+                    if(v[ind] >= max_dg){
                         st.pop();
-                        v[ind] = 0;
+                        v[ind] = -1;
                         continue;
                     }
                     
@@ -290,8 +291,8 @@ class DCSGQ{
 
  
         void JOIN_transfer(Bag<T> bx, Bag<T> by, Bag<T> bz){ // need optimize
-            // W[state(bx, set<T>(), map<T,T>())] = 0;
-            // W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            W[state(bx, set<T>(), map<T,T>())] = 0;
+            W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0,  tot = 0;
@@ -350,19 +351,19 @@ class DCSGQ{
                                 }
                                 continue;
                             }
-                            if(v2[ind2] > max_dg){
+                            if(v2[ind2] >= max_dg){
                                 st2.pop();
-                                v2[ind] = 0;
+                                v2[ind2] = -1;
                                 continue;
                             }
-                            ++v2[ind];
+                            ++v2[ind2];
                             st2.emplace(ind2 + 1);
                         }
                         continue;
                     }
-                    if(v[ind] > max_dg){
+                    if(v[ind] >= max_dg){
                         st.pop();
-                        v[ind] = 0;
+                        v[ind] = -1;
                         continue;
                     }
                     ++v[ind];
@@ -373,20 +374,22 @@ class DCSGQ{
         }
 
         set<int> BackTrack(state now){
+            // cout << now.B.id << endl;
             int tag = static_cast<int>(ntd.bagType[now.B]);
             if(tag == 0)
                 return now.B.vertices; // leaf
             
             if(tag == 1){ // introduce
                 int u = ntd.specialVertex[now.B];
-                set<T> ret = BackTrack(from[now][0]);
+                set<T> ret = (from.count(now) ? BackTrack(from[now][0]) : set<T>());
                 if(now.S.count(u))
                     ret.insert(u);
                 return ret;
                 
             }else if(tag == 2){//forget
-                return BackTrack(from[now][0]);
-
+                if(from.count(now))
+                    return BackTrack(from[now][0]);
+                return set<T>();
             }else if(tag == 3){//join
                 set<T> x = BackTrack(from[now][0]), y = BackTrack(from[now][1]);
                 for(auto &i:y) x.insert(i);
@@ -403,7 +406,7 @@ class DCSGQ{
             while(!st.empty()){
                 Bag<T> v = st.top();
                 int tag = static_cast<int>(ntd.bagType[v]);
-                cout << v.id << endl;
+                // cout << v.id << endl;
                 if(tag == 0){
                     LEAF_trasfer(v);
                     st.pop();
@@ -423,17 +426,17 @@ class DCSGQ{
                 if(tag == 1)// introduce
                     INTRODUCE_transfer(v, ntd.childrenBag[v][0]);
                 else if(tag == 2)// forget
-                    FORGET_transfer(v, ntd.childrenBag[v][1]);
+                    FORGET_transfer(v, ntd.childrenBag[v][0]);
                 else if(tag == 3)
                     JOIN_transfer(v, ntd.childrenBag[v][0], ntd.childrenBag[v][1]);
 
                 st.pop();
             }
             
-            
+            // cout << W.size() << ' ' << W_.size() << "\n";
             Bag<T> start = ntd.childrenBag[ntd.root][0];
             set<T> ans = BackTrack(max_state[start]);
-            cout << "Ans: " << max_value[start]; 
+            cout << "Ans: " << max_value[start] << '\n'; 
             for(auto &i: ans ) cout << i << ' ';
             cout << "\n";
         }

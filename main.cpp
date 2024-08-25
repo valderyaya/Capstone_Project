@@ -37,7 +37,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase.txt", "r", stdin);
+    freopen("testcase2.txt", "r", stdin);
     // ori.add_edge(1, 2);
     // ori.add_edge(2, 3);
     // ori.add_edge(2, 7);
@@ -55,17 +55,6 @@ int main(){
     // ori.add_edge(2, 5);
     // ori.add_edge(6, 5);
     // ori.add_edge(3, 6);
-
-
-    // ori.add_edge(1, 2);
-    // ori.add_edge(1, 3);
-    // ori.add_edge(1, 5);
-    // ori.add_edge(2, 3);
-    // ori.add_edge(2, 4);
-    // ori.add_edge(2, 5);
-    // ori.add_edge(3, 4);
-    // ori.add_edge(3, 5);
-    // ori.add_edge(4, 5);
 
     // ori.add_edge(1, 2);
     // ori.add_edge(2, 3);
