@@ -439,6 +439,7 @@ class DCSGQ{
             Bag<T> start = ntd.childrenBag[ntd.root][0];
             set<T> ans = BackTrack(max_state[start]);
             cout << "Ans: " << max_value[start] << '\n'; 
+            cout << ans.size() << ": ";
             for(auto &i: ans ) cout << i << ' ';
             cout << "\n";
         }
