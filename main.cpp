@@ -13,6 +13,7 @@ using namespace std;
 #include "Dinic.h"
 #include "Debug_func.h"
 #include "DCSGQ.h"
+#include "MaximumClique.h"
 // #include "PartialTreeDecomposition.h"
 
 
@@ -37,7 +38,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase2.txt", "r", stdin);
+    freopen("testcase3.txt", "r", stdin);
     // ori.add_edge(1, 2);
     // ori.add_edge(2, 3);
     // ori.add_edge(2, 7);
@@ -139,7 +140,7 @@ int main(){
 //     solver.add_edge(1, 5);
 //     solver.add_edge(2, 3);
 //     solver.add_edge(2, 4);
-//     solver.add_edge(2, 5);
+//     // solver.add_edge(2, 5);
 //     solver.add_edge(3, 4);
 //     solver.add_edge(3, 5);
 //     solver.add_edge(4, 5);

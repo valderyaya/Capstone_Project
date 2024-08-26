@@ -64,6 +64,7 @@ class DCSGQ{
                     if((i >> j) & 1) tmp.insert(t[j]);
                 ret.emplace_back(tmp); 
             }
+            sort(ret.begin(), ret.end(), [&](const set<int>& a, const set<int>& b){return a.size() != b.size() ? a.size() < b.size() : a < b;});
             return ret;
         }
 
@@ -422,14 +423,14 @@ class DCSGQ{
                 }
 
                 if(flag) continue;
-                
+                // cout << v.id << ' ' << max_value[v] << endl;
                 if(tag == 1)// introduce
                     INTRODUCE_transfer(v, ntd.childrenBag[v][0]);
                 else if(tag == 2)// forget
                     FORGET_transfer(v, ntd.childrenBag[v][0]);
                 else if(tag == 3)
                     JOIN_transfer(v, ntd.childrenBag[v][0], ntd.childrenBag[v][1]);
-                // cout << v.id << ' ' << max_value[v] << endl;
+                
                 // state tmp = max_state[v];
                 st.pop();
             }
