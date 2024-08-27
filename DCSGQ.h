@@ -29,8 +29,8 @@ class DCSGQ{
         vector<int> UpBound, LowBound, weight;
         map<pair<int, int>, int> edge_weight; 
         NiceTreeDecomposition<T> ntd;
-        map<state, vector<state>> from;
-        // map<state, int> from_;
+        map<state, vector<state>> from, from_;
+        map<state, int> fromTag;
         map<state, int> W, W_;
         map<Bag<T>, state> max_state;
         map<Bag<T>, int> max_value;
@@ -152,15 +152,17 @@ class DCSGQ{
                                     W[now] = val;
                                     W_[now] = val;
                                     from[now] = vector<state>{prv};
+                                    from_[now] = vector<state>{prv};
                                     if(val > max_value[bx]){
                                         max_value[bx] = val;
                                         max_state[bx] = now;
                                     }
-                                    // from_[now] = 2;
                                 }
                             }else if(f == v[u_idx] && !is_in_range(u, v[u_idx]))
-                                if(W_.count(prv)) W_[now] = W_[prv] + weight[u];
-
+                                if(W_.count(prv)){
+                                    W_[now] = W_[prv] + weight[u];
+                                    from_[now] = vector<state>{prv};
+                                }
                         }else{ // case 1
                             state prv = state(by, s, map<T,T>());
                             for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
@@ -168,13 +170,12 @@ class DCSGQ{
                                 int val = W[prv];
                                 W[now] = val;
                                 from[now] = vector<state>{prv};
-                                // from_[now] = 1;
                                 if(val > max_value[bx]){
                                     max_value[bx] = val;
                                     max_state[bx] = now;
                                 }
                             }
-                            if(W_.count(prv)) W_[now] = W_[prv];
+                            if(W_.count(prv)) W_[now] = W_[prv], from_[now] = vector<state>{prv};
                         }
                         continue;
                     }
@@ -241,13 +242,15 @@ class DCSGQ{
                         if(mx != -INF){
                             W[now] = mx;
                             from[now] = vector<state>{from_state};
-                            // from_[now] = 1;
                             if(mx > max_value[bx]){
                                 max_value[bx] = mx;
                                 max_state[bx] = now;
                             }
                         }
-                        if(mx_ != -INF) W_[now] = mx_;
+                        if(mx_ != -INF){
+                            W_[now] = mx_;
+                            from_[now] = vector<state>{from_state};
+                        }
                         continue;
                     }
                     if(v[ind] >= max_dg){
@@ -338,17 +341,26 @@ class DCSGQ{
                                         if(val > W[now]){
                                             W[now] = val;
                                             from[now] = vector<state>{py, pz};
-                                            // from_[now] = 2;
+                                            fromTag[now] = 2;
                                             if(val > max_value[bx]){
                                                 max_value[bx] = val;
                                                 max_state[bx] = now;
                                             }
                                         }
-                                        W_[now] = max(W_[now], W_[py] + W_[pz] - tot);
+                                        val =  W_[py] + W_[pz] - tot;
+                                        if(val > W_[now]){
+                                            W_[now] = val;
+                                            from_[now] = vector<state>{py, pz};
+                                        }
                                     }
                                 }else{
-                                    if(W_.count(py) && W_.count(pz))
-                                        W_[now] = max(W_[now], W_[py] + W_[pz] - tot);
+                                    if(W_.count(py) && W_.count(pz)){
+                                        int val =W_[py] + W_[pz] - tot;
+                                        if(val > W_[now]){
+                                            W_[now] = val;
+                                            from_[now] = vector<state>{py, pz};
+                                        }
+                                    }
                                 }
                                 continue;
                             }
@@ -422,6 +434,7 @@ class DCSGQ{
                     flag = 1;
                 }
 
+
                 if(flag) continue;
                 // cout << v.id << ' ' << max_value[v] << endl;
                 if(tag == 1)// introduce
@@ -439,9 +452,18 @@ class DCSGQ{
             Bag<T> start = ntd.childrenBag[ntd.root][0];
             set<T> ans = BackTrack(max_state[start]);
             cout << "Ans: " << max_value[start] << '\n'; 
-            cout << ans.size() << ": ";
-            for(auto &i: ans ) cout << i << ' ';
+            // cout << ans.size() << ": ";
+            // for(auto &i: ans ) cout << i << ' ';
             cout << "\n";
+
+            cout << "W:\n";
+            for(auto it = W.begin(); it != W.end(); ++it){
+                cout << "id: " << it->first.B.id << "  S: {";
+                for(auto &i : it->first.S) cout << i << ' ';
+                cout << "}  P: {";
+                for(auto &i : it->first.P) cout << i.first << " : " <<i.second << "", "";
+                cout <<"}   " << it->second << "\n";
+            }
         }
 
         
