@@ -231,7 +231,7 @@ class DCSGQ{
                                 int val = W_[prv];
                                 if(val > mx_){
                                     mx_ = val;
-                                    from_state_;
+                                    from_state_ = prv;
                                 }
                             }
                         }
@@ -248,7 +248,7 @@ class DCSGQ{
                                 int val = W_[prv];
                                 if(val > mx_){
                                     mx_ = val;
-                                    from_state_;
+                                    from_state_ = prv;
                                 }
                             }
                         if(mx != -INF){
