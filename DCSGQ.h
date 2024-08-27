@@ -216,7 +216,7 @@ class DCSGQ{
 
                         set<int> sy(s);
                         sy.insert(u);
-                        state prv = state(by, sy, now.P), from_state;
+                        state prv = state(by, sy, now.P), from_state, from_state_;
                         int mx = -INF, mx_ = -INF;
                         for(int i = LowBound[u]; i <= UpBound[u]; ++i){
                             prv.P[u] = i;
@@ -227,7 +227,13 @@ class DCSGQ{
                                     from_state = prv;
                                 }
                             }
-                            if(W_.count(prv))  mx_ = max(mx_, W_[prv]);
+                            if(W_.count(prv)){
+                                int val = W_[prv];
+                                if(val > mx_){
+                                    mx_ = val;
+                                    from_state_;
+                                }
+                            }
                         }
                         prv.P = now.P;
                         prv.S = s;
@@ -238,7 +244,13 @@ class DCSGQ{
                                 from_state = prv;
                             }
                         }
-                        if(W_.count(prv)) mx_ = max(mx_, W_[prv]);
+                        if(W_.count(prv)){
+                                int val = W_[prv];
+                                if(val > mx_){
+                                    mx_ = val;
+                                    from_state_;
+                                }
+                            }
                         if(mx != -INF){
                             W[now] = mx;
                             from[now] = vector<state>{from_state};
@@ -249,7 +261,7 @@ class DCSGQ{
                         }
                         if(mx_ != -INF){
                             W_[now] = mx_;
-                            from_[now] = vector<state>{from_state};
+                            from_[now] = vector<state>{from_state_};
                         }
                         continue;
                     }
@@ -456,13 +468,31 @@ class DCSGQ{
             // for(auto &i: ans ) cout << i << ' ';
             cout << "\n";
 
-            cout << "W:\n";
-            for(auto it = W.begin(); it != W.end(); ++it){
+            cout << "W_:\n";
+            for(auto it = W_.begin(); it != W_.end(); ++it){
                 cout << "id: " << it->first.B.id << "  S: {";
                 for(auto &i : it->first.S) cout << i << ' ';
                 cout << "}  P: {";
-                for(auto &i : it->first.P) cout << i.first << " : " <<i.second << "", "";
-                cout <<"}   " << it->second << "\n";
+                for(auto &i : it->first.P) cout << i.first << " : " <<i.second << ", ";
+                cout <<"}   ";
+                cout << it->second << "\n";
+
+                if(!from_.count(it->first)) continue;
+                auto f = from_[it->first];
+                cout << "from:   ";
+                cout << "id: " << f[0].B.id << "  S: {";
+                for(auto &i : f[0].S) cout << i << ' ';
+                cout << "}  P: {";
+                for(auto &i : f[0].P) cout << i.first << " : " <<i.second << ", ";
+                cout <<"}\n--------------\n";
+                if(f.size() == 2){
+                    cout << "from:   ";
+                    cout << "id: " << f[1].B.id << "  S: {";
+                    for(auto &i : f[1].S) cout << i << ' ';
+                    cout << "}  P: {";
+                    for(auto &i : f[1].P) cout << i.first << " : " <<i.second << ", ";
+                    cout <<"}\n--------------\n";
+                }
             }
         }
 
