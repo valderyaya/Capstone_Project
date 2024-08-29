@@ -113,14 +113,19 @@ class DCSGQ{
             W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0, u_idx = -1;
+                int N = s.size(), ind = 0, u_idx = -1, tmp_sum = 0;
                 vector<int> v(N, -1), elm(N);
+                map<T,T> tmp_;
                 for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
+                    tmp[i] = 0;
+                    tmp_sum += weight[i];
                 }
-                state now = state(bx, s, map<T,T>());
-
+                state now = state(bx, s, tmp);
+                W_[now] = tmp_sum;
+                
+                now.P = map<T,T>();
                 stack<int> st;
                 st.push(0);
 
@@ -198,13 +203,19 @@ class DCSGQ{
             W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0, u_idx = -1;
+                int N = s.size(), ind = 0, u_idx = -1, tmp_sum = 0;
                 vector<int> v(N, -1), elm(N);
+                map<T,T> tmp_;
                 for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
+                    tmp[i] = 0;
+                    tmp_sum += weight[i];
                 }
-                state now = state(bx, s, map<T,T>());
+                state now = state(bx, s, tmp);
+                W_[now] = tmp_sum;
+                
+                now.P = map<T,T>();
                 stack<int> st;
                 st.push(0);
 
