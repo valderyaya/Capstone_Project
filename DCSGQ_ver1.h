@@ -15,7 +15,7 @@ class DCSGQ{
         struct state{
             Bag<T> B;
             set<T> S;
-            set<T> P;
+            map<T, T> P;
             state() : B(), S(), P() {}
             state(Bag<T> b, set<T> s, map<T, T> p):B(b),S(s),P(p){}
             bool operator<(const state &d)const{
@@ -28,8 +28,6 @@ class DCSGQ{
         const int INF = 2147483647;
         vector<int> UpBound, LowBound, weight;
         map<pair<int, int>, int> edge_weight; 
-        map<pair<int, int>, int> edge_id;
-        vector<pair<int,int>> edge;
         NiceTreeDecomposition<T> ntd;
         map<state, vector<state>> from, from_;
         map<state, int> fromTag;
@@ -37,14 +35,16 @@ class DCSGQ{
         map<Bag<T>, state> max_state;
         map<Bag<T>, int> max_value;
         state max_root_state;
-        int H, Initiator, n;
+        int H, Initiator, n, max_dg;
         
         
         DCSGQ(NiceTreeDecomposition<T> &x):ntd(x){}
-        DCSGQ(){}
-        
 
-        // void initialization(){}
+        void initialization(){
+            max_dg = 0;
+            for(auto it = ntd.treeDecomposition.graph.adj.begin(); it != ntd.treeDecomposition.graph.adj.end(); ++it)
+                max_dg = max(max_dg, (int)it->second.size());
+        }
 
         bool is_in_range(int v, int w){
             return (LowBound[v] <= w && w <= UpBound[v]);
@@ -70,17 +70,39 @@ class DCSGQ{
 
         void LEAF_trasfer(Bag<T> b){
             T v = ntd.specialVertex[b];
-            W[state(b, set<T>(), set<T>())] = 0;
-            W_[state(b, set<T>(), set<T>())] = 0; 
+            W[state(b, set<T>(), map<T,T>())] = 0;
+            W_[state(b, set<T>(), map<T,T>())] = 0; 
             if((UpBound[v] >= 0 && 0 >= LowBound[v]) || LowBound[v] == 0){ // case 1
-                state sta(b, b.vertices, set<T>());
+                state sta(b, b.vertices, map<T, T>());
+                sta.P[v] = 0;
                 W[sta] = weight[v];
                 W_[sta] = weight[v];
                 max_state[b] = sta;
                 max_value[b] = weight[v];
+                // for(int i = LowBound[v]; i <= UpBound[v]; ++i){
+                //     sta.P[v] = i;
+                //     if(i == 0){
+                //         W[sta] = weight[v];
+                //         W_[sta] = weight[v];
+                //     }else{
+                //         W[sta] = -INF;
+                //         W_[sta] = -INF;
+                //     }
+                // }
             }else if(LowBound[v] > 0){ // case 2
-                state sta(b, b.vertices, set<T>());
+                state sta(b, b.vertices, map<T, T>());
+                sta.P[v] = 0;
                 W_[sta] = weight[v];
+                // for(int i = LowBound[v]; i <= UpBound[v]; ++i){
+                //     sta.P[v] = i;
+                //     if(i == 0){
+                //         W[sta] = -INF;
+                //         W_[sta] = weight[v];
+                //     }else{
+                //         W[sta] = -INF;
+                //         W_[sta] = -INF;
+                //     }
+                // }
             }
         }
 
@@ -93,19 +115,21 @@ class DCSGQ{
             for(auto &s : ss){
                 int N = s.size(), ind = 0, u_idx = -1, tmp_sum = 0;
                 vector<int> v(N, -1), elm(N);
+                map<T,T> tmp_;
                 for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
+                    tmp[i] = 0;
                     tmp_sum += weight[i];
                 }
-                state now = state(bx, s, set<T>());
+                state now = state(bx, s, tmp);
                 W_[now] = tmp_sum;
                 
-                
-
-                
+                now.P = map<T,T>();
                 stack<int> st;
                 st.push(0);
+
+
                 while(!st.empty()){ // enumerate
                     ind = st.top();
                     if(ind == (int)v.size()){// transform

@@ -77,21 +77,27 @@ int main(){
     // print_graph_int(ori);
 
     int n, m;
-    vector<int> UpBound, LowBound, weight;
-    map<pair<int, int>, int> edge_weight;
+    DCSGQ<int> solver;
+    // vector<int> UpBound, LowBound, weight;
+    // map<pair<int, int>, int> edge_weight;
     Graph<int> ori;
     cin >> n >> m;
-    UpBound.resize(n + 1);
-    LowBound.resize(n + 1);
-    weight.resize(n + 1);
-    for(int i = 1; i <= n; ++i) cin >> weight[i];
-    for(int i = 1; i <= n; ++i) cin >> UpBound[i];
-    for(int i = 1; i <= n; ++i) cin >> LowBound[i];
-    for(int x, y, z; m--;){
+    solver.n = n;
+    solver.UpBound.resize(n + 1);
+    solver.LowBound.resize(n + 1);
+    solver.weight.resize(n + 1);
+    solver.edge.resize(m + 1);
+    for(int i = 1; i <= n; ++i) cin >> solver.weight[i];
+    for(int i = 1; i <= n; ++i) cin >> solver.UpBound[i];
+    for(int i = 1; i <= n; ++i) cin >> solver.LowBound[i];
+    for(int x, y, z, i = 1; i <= m; ++i){
         cin >> x >> y >> z;
         ori.add_edge(x, y);
-        edge_weight[{x, y}] = z;
-        edge_weight[{y, x}] = z;
+        solver.edge_weight[{x, y}] = z;
+        solver.edge_weight[{y, x}] = z;
+        solver.edge[i] = {x, y};
+        solver.edge_id[{x, y}] = i;
+        solver.edge_id[{y, x}] = i;
     }
     TreeDecomposition<int> td(ori);
     set<int> s;
@@ -109,14 +115,8 @@ int main(){
     // cout<< ntd.treeDecomposition.isValid() << endl;
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
-    
-    DCSGQ<int> solver(ntd);
-    solver.edge_weight = edge_weight;
-    solver.n = n;
-    solver.UpBound = UpBound;
-    solver.LowBound = LowBound;
-    solver.weight = weight;
-    solver.initialization();
+    solver.ntd = ntd;
+    // solver.initialization();
     solver.solve();
     
     cout << "------------Finish--------------\n";
