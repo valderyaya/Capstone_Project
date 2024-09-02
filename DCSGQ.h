@@ -110,9 +110,29 @@ class DCSGQ{
                 for(int mask = 0; mask < (1 << M); ++mask){
                     set<int> edge;
                     for(int i = mask, j; i; i = (i - 1) & i){
-                        j = i & (-i);
-                        edge.insert(v[j]);
+                        j = v[__lg((i & (-i)))];
+                        edge.insert(j);
+                        
                     }
+                    if(!s.count(u)){
+                        state prv = state(by, s, edge);
+                        if(W.count(prv)){
+                            int val = W[prv];
+                            W[now] = val;
+                            from[now] = vector<state>{prv};
+                            if(val > max_value[bx]){
+                                max_value[bx] = val;
+                                max_state[bx] = now;
+                            }
+                        }
+                        if(W_.count(prv)){
+                            W_[now] = W_[prv];
+                            from_[now] = vector<state>{prv};
+                        }
+                        continue;
+                    }
+
+                    
                 }
 
 
