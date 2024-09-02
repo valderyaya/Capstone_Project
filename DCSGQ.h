@@ -92,7 +92,7 @@ class DCSGQ{
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, u_idx = -1, tmp_sum = 0;
-                vector<int> v(N, -1), elm(N);
+                vector<int> v, elm(N);
                 for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
@@ -101,7 +101,20 @@ class DCSGQ{
                 state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
                 
+                for(int i = 0; i < ind; ++i)
+                    for(int j = i + 1; j < ind; ++j)
+                        if(edge_id.count({i, j}))
+                            v.emplace_back(edge_id[{i, j}]);
                 
+                int M = v.size();
+                for(int mask = 0; mask < (1 << M); ++mask){
+                    set<int> edge;
+                    for(int i = mask, j; i; i = (i - 1) & i){
+                        j = i & (-i);
+                        edge.insert(v[j]);
+                    }
+                }
+
 
                 
                 stack<int> st;
