@@ -91,10 +91,9 @@ class DCSGQ{
             W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0, u_idx = -1, tmp_sum = 0;
+                int N = s.size(), ind = 0, tmp_sum = 0;
                 vector<int> v, elm(N);
                 for(auto &i: s){
-                    if(i == u) u_idx = ind;
                     elm[ind++] = i;
                     tmp_sum += weight[i];
                 }
@@ -108,20 +107,17 @@ class DCSGQ{
                 
                 int M = v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
-                    set<int> edge_set;
-                    int f = 0;
+                    set<int> edge_set, u_edge;
                     map<int, int> P;
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
                         ++P[edge[j][0]];
                         ++P[edge[j][1]];
-                        if(edge[j][0] == u || edge[j][1] == u){
-                            f += edge_weight[edge[j]];
-                        }
+                        if(edge[j][0] == u || edge[j][1] == u) u_edge.insert(j);
                     }
                     if(!s.count(u)){// u not in s
-                        state prv = state(by, s, edge);
+                        state prv = state(by, s, edge_set);
                         if(W.count(prv)){
                             int val = W[prv];
                             W[now] = val;
@@ -144,80 +140,28 @@ class DCSGQ{
                             break;
                         }
                     
-                    
-                }
-
-
-                
-                stack<int> st;
-                st.push(0);
-                while(!st.empty()){ // enumerate
-                    ind = st.top();
-                    if(ind == (int)v.size()){// transform
-                        st.pop();
-                        bool condition9 = 1;
-                        for(int i = 0; i < ind; ++i){
-                            now.P[elm[i]] = v[i];
-                            if(!is_in_range(elm[i], v[i])) condition9 = 0;
-                        }
-                        
-                        if(s.count(u)){
-                            int f = 0;
-                            for(auto it = s.begin(); it != s.end(); ++it) f += edge_weight[{u, *it}]; // calculate condition 8
-                            if(f != v[u_idx]) continue;
-
-                            set<int> sy(s);
-                            sy.erase(u);
-                            state prv = state(by, sy, map<T,T>());
-                            if(!sy.empty()){
-                                prv.P = now.P;
-                                prv.P.erase(u);
-                                for(auto it = prv.P.begin(); it != prv.P.end(); ++it)
-                                    it->second -= edge_weight[{it->first, u}];
+                    set<T> diff;
+                    set_difference(edge_set.vertices.begin(), edge_set.vertices.end(), u_edge.vertices.begin(), u_edge.vertices.end(), inserter(diff, diff.end()));
+                    state prv = state(by, s, diff);
+                    if(condition9){
+                        if(W_.count(prv)){
+                            int val = W_[prv] + weight[u] ;
+                            W[now] = val;
+                            W_[now] = val;
+                            from[now] = vector<state>{prv};
+                            from_[now] = vector<state>{prv};
+                            if(val > max_value[bx]){
+                                max_value[bx] = val;
+                                max_state[bx] = now;
                             }
-
-                            if(f == v[u_idx] && condition9){
-                                if(W_.count(prv)){
-                                    int val = W_[prv] + weight[u] ;
-                                    W[now] = val;
-                                    W_[now] = val;
-                                    from[now] = vector<state>{prv};
-                                    from_[now] = vector<state>{prv};
-                                    if(val > max_value[bx]){
-                                        max_value[bx] = val;
-                                        max_state[bx] = now;
-                                    }
-                                }
-                            }else if(f == v[u_idx] && !condition9)
-                                if(W_.count(prv)){
-                                    W_[now] = W_[prv] + weight[u];
-                                    from_[now] = vector<state>{prv};
-                                }
-                        }else{ // case 1
-                            state prv = state(by, s, map<T,T>());
-                            for(int i = 0; i < ind; ++i) prv.P[elm[i]] = v[i];
-                            if(W.count(prv)){
-                                int val = W[prv];
-                                W[now] = val;
-                                from[now] = vector<state>{prv};
-                                if(val > max_value[bx]){
-                                    max_value[bx] = val;
-                                    max_state[bx] = now;
-                                }
-                            }
-                            if(W_.count(prv)) W_[now] = W_[prv], from_[now] = vector<state>{prv};
                         }
-                        continue;
+                    }else{
+                        if(W_.count(prv)){
+                            W_[now] = W_[prv] + weight[u];
+                            from_[now] = vector<state>{prv};
+                        }
                     }
-                    if(v[ind] >= max_dg){
-                        st.pop();
-                        v[ind] = -1;
-                        continue;
-                    }
-                    ++v[ind];
-                    st.emplace(ind + 1);
                 }
-                
             }
         }
 
@@ -228,18 +172,40 @@ class DCSGQ{
             W_[state(bx, set<T>(), map<T,T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0, u_idx = -1, tmp_sum = 0;
-                vector<int> v(N, -1), elm(N);
-                map<T,T> tmp_;
+                int N = s.size(), ind = 0, tmp_sum = 0;
+                vector<int> v, elm(N);
                 for(auto &i: s){
-                    if(i == u) u_idx = ind;
                     elm[ind++] = i;
-                    tmp[i] = 0;
                     tmp_sum += weight[i];
                 }
-                state now = state(bx, s, tmp);
+                state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
                 
+                for(int i = 0; i < ind; ++i)
+                    for(int j = i + 1; j < ind; ++j)
+                        if(edge_id.count({i, j}))
+                            v.emplace_back(edge_id[{i, j}]);
+                
+                int M = v.size();
+                for(int mask = 0; mask < (1 << M); ++mask){
+                    set<int> edge_set, u_edge;
+                    map<int, int> P;
+                    int deg = 0;
+                    for(int i = mask, j; i; i = (i - 1) & i){
+                        j = v[__lg((i & (-i)))];
+                        edge_set.insert(j);
+                        ++P[edge[j][0]];
+                        ++P[edge[j][1]];
+                        if(edge[j][0] == u || edge[j][1] == u) u_edge.insert(j);
+                    }
+                    set<int> sy(s);
+                    sy.insert(u);
+                    state prv = state(by, sy, edge_set), from_state, from_state_;
+                    int mx = -INF, mx_ = -INF;
+
+                }
+
+
                 now.P = map<T,T>();
                 stack<int> st;
                 st.push(0);
@@ -312,34 +278,6 @@ class DCSGQ{
                 }
             }
         }
-
-        // void Enumerate(){
-        //     int N = s.size(), ind = 0, u_idx = -1;
-        //     vector<int> v(N, -1), elm(N);
-        //     for(auto &i: s){
-        //         if(i == u) u_idx = ind;
-        //         elm[ind++] = i;
-        //     }
-        //     state now = state(bx, s, map<T,T>());
-        //     stack<int> st;
-        //     st.push(0);
-
-        //     while(!st.empty()){
-        //         ind = st.top();
-        //         if(ind == (int)v.size()){
-        //             st.pop();
-                    
-        //             continue;
-        //         }
-        //         if(v[ind] > max_dg){
-        //             st.pop();
-        //             v[ind] = 0;
-        //             continue;
-        //         }
-        //         ++v[ind];
-        //         st.emplace(ind + 1);
-        //     }
-        // }
 
  
         void JOIN_transfer(Bag<T> bx, Bag<T> by, Bag<T> bz){ // need optimize

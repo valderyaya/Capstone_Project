@@ -79,30 +79,10 @@ class DCSGQ{
                 W_[sta] = weight[v];
                 max_state[b] = sta;
                 max_value[b] = weight[v];
-                // for(int i = LowBound[v]; i <= UpBound[v]; ++i){
-                //     sta.P[v] = i;
-                //     if(i == 0){
-                //         W[sta] = weight[v];
-                //         W_[sta] = weight[v];
-                //     }else{
-                //         W[sta] = -INF;
-                //         W_[sta] = -INF;
-                //     }
-                // }
             }else if(LowBound[v] > 0){ // case 2
                 state sta(b, b.vertices, map<T, T>());
                 sta.P[v] = 0;
                 W_[sta] = weight[v];
-                // for(int i = LowBound[v]; i <= UpBound[v]; ++i){
-                //     sta.P[v] = i;
-                //     if(i == 0){
-                //         W[sta] = -INF;
-                //         W_[sta] = weight[v];
-                //     }else{
-                //         W[sta] = -INF;
-                //         W_[sta] = -INF;
-                //     }
-                // }
             }
         }
 
