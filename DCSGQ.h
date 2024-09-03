@@ -108,13 +108,19 @@ class DCSGQ{
                 
                 int M = v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
-                    set<int> edge;
+                    set<int> edge_set;
+                    int f = 0;
+                    map<int, int> P;
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
-                        edge.insert(j);
-                        
+                        edge_set.insert(j);
+                        ++P[edge[j][0]];
+                        ++P[edge[j][1]];
+                        if(edge[j][0] == u || edge[j][1] == u){
+                            f += edge_weight[edge[j]];
+                        }
                     }
-                    if(!s.count(u)){
+                    if(!s.count(u)){// u not in s
                         state prv = state(by, s, edge);
                         if(W.count(prv)){
                             int val = W[prv];
@@ -131,7 +137,13 @@ class DCSGQ{
                         }
                         continue;
                     }
-
+                    bool condition9 = 1;
+                    for(auto it = P.begin(); it != P.end(); ++it)
+                        if(!is_in_range(it->first, it->second)){
+                            condition9 = 0;
+                            break;
+                        }
+                    
                     
                 }
 
