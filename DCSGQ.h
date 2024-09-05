@@ -93,18 +93,19 @@ class DCSGQ{
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
                 vector<int> v, elm(N);
+                set<int> edges;
                 for(auto &i: s){
                     elm[ind++] = i;
                     tmp_sum += weight[i];
+                    for(auto j : ntd.treeDecomposition.graph.adj[i])
+                        edges.insert(edge_id[{i, j}]);
                 }
                 state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
                 
-                for(int i = 0; i < ind; ++i)
-                    for(int j = i + 1; j < ind; ++j)
-                        if(edge_id.count({i, j}))
-                            v.emplace_back(edge_id[{i, j}]);
-                
+                for(auto &i: edges)
+                    v.emplace_back(i);
+                    
                 int M = v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
                     set<int> edge_set, u_edge;
