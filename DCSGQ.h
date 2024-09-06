@@ -17,7 +17,7 @@ class DCSGQ{
             set<T> S;
             set<T> P;
             state() : B(), S(), P() {}
-            state(Bag<T> b, set<T> s, map<T, T> p):B(b),S(s),P(p){}
+            state(Bag<T> b, set<T> s, set<T> p):B(b),S(s),P(p){}
             bool operator<(const state &d)const{
                 if(B != d.B) return B < d.B;
                 if(S != d.S) return S < d.S;
@@ -41,7 +41,7 @@ class DCSGQ{
         
         
         DCSGQ(NiceTreeDecomposition<T> &x):ntd(x){}
-        DCSGQ(){}
+        // DCSGQ(){}
         
 
         // void initialization(){}
@@ -87,15 +87,15 @@ class DCSGQ{
 
         void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){ // missing p_x = 0 cases ?
             int u = ntd.specialVertex[bx];
-            W[state(bx, set<T>(), map<T,T>())] = 0;
-            W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            W[state(bx, set<T>(), set<T>())] = 0;
+            W_[state(bx, set<T>(), set<T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
-                vector<int> v, elm(N);
+                vector<int> v;//, elm(N);
                 set<int> edges;
                 for(auto &i: s){
-                    elm[ind++] = i;
+                    // elm[ind++] = i;
                     tmp_sum += weight[i];
                     for(auto j : ntd.treeDecomposition.graph.adj[i])
                         edges.insert(edge_id[{i, j}]);
@@ -113,9 +113,10 @@ class DCSGQ{
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
-                        ++P[edge[j][0]];
-                        ++P[edge[j][1]];
-                        if(edge[j][0] == u || edge[j][1] == u) u_edge.insert(j);
+                        int x = edge[j].first, y = edge[j].second; 
+                        if(s.count(x)) ++P[x];
+                        if(s.count(y)) ++P[y];
+                        if(x == u || y == u) u_edge.insert(j);
                     }
                     if(!s.count(u)){// u not in s
                         state prv = state(by, s, edge_set);
@@ -142,7 +143,7 @@ class DCSGQ{
                         }
                     
                     set<T> diff;
-                    set_difference(edge_set.vertices.begin(), edge_set.vertices.end(), u_edge.vertices.begin(), u_edge.vertices.end(), inserter(diff, diff.end()));
+                    set_difference(edge_set.begin(), edge_set.end(), u_edge.begin(), u_edge.end(), inserter(diff, diff.end()));
                     state prv = state(by, s, diff);
                     if(condition9){
                         if(W_.count(prv)){
@@ -169,77 +170,59 @@ class DCSGQ{
 
         void FORGET_transfer(Bag<T> bx, Bag<T> by){
             int u = ntd.specialVertex[bx];
-            W[state(bx, set<T>(), map<T,T>())] = 0;
-            W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            W[state(bx, set<T>(), set<T>())] = 0;
+            W_[state(bx, set<T>(), set<T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
-                vector<int> v, elm(N);
+                vector<int> v, u_v;//, elm(N) ;
+                set<int> edges, u_edge;
                 for(auto &i: s){
-                    elm[ind++] = i;
+                    // elm[ind++] = i;
                     tmp_sum += weight[i];
+                    for(auto &j : ntd.treeDecomposition.graph.adj[i])
+                        edges.insert(edge_id[{i, j}]);
                 }
+                for(auto &i:ntd.treeDecomposition.graph.adj[u])
+                    if(!s.count(i)) u_edge.insert(edge_id[{i, u}]);
+
+                for(auto &i: edges)
+                    v.emplace_back(i);
+
+                for(auto &i: u_edge)
+                    u_v.emplace_back(i);
+
                 state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
-                
-                for(int i = 0; i < ind; ++i)
-                    for(int j = i + 1; j < ind; ++j)
-                        if(edge_id.count({i, j}))
-                            v.emplace_back(edge_id[{i, j}]);
-                
-                int M = v.size();
+                                
+                int M = v.size(), uM = u_v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
-                    set<int> edge_set, u_edge;
-                    map<int, int> P;
-                    int deg = 0;
+                    set<int> edge_set;
+                    // map<int, int> P;
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
-                        ++P[edge[j][0]];
-                        ++P[edge[j][1]];
-                        if(edge[j][0] == u || edge[j][1] == u) u_edge.insert(j);
+                        // ++P[edge[j][0]];
+                        // ++P[edge[j][1]];
                     }
                     set<int> sy(s);
                     sy.insert(u);
-                    state prv = state(by, sy, edge_set), from_state, from_state_;
+                    state prv = state(by, sy, set<T>()), from_state, from_state_;
                     int mx = -INF, mx_ = -INF;
 
-                }
-
-
-                now.P = map<T,T>();
-                stack<int> st;
-                st.push(0);
-
-                while(!st.empty()){
-                    ind = st.top();
-                    if(ind == (int)v.size()){
-                        st.pop();
-                        for(int i = 0; i < ind; ++i) now.P[elm[i]] = v[i];
-
-                        set<int> sy(s);
-                        sy.insert(u);
-                        state prv = state(by, sy, now.P), from_state, from_state_;
-                        int mx = -INF, mx_ = -INF;
-                        for(int i = LowBound[u]; i <= UpBound[u]; ++i){
-                            prv.P[u] = i;
-                            if(W.count(prv)){
-                                int val = W[prv];
-                                if(val > mx){
-                                    mx = val;
-                                    from_state = prv;
-                                }
-                            }
-                            if(W_.count(prv)){
-                                int val = W_[prv];
-                                if(val > mx_){
-                                    mx_ = val;
-                                    from_state_ = prv;
-                                }
-                            }
+                    for(int u_mask = 0; u_mask < (1 << uM); ++u_mask){ // OPT_II
+                        set<int> prv_edge_set(edge_set);
+                        for(int i = u_mask, j; i; i = (i - 1) & i){
+                            j = u_v[__lg(i & (-i))];
+                            prv_edge_set.insert(j);
                         }
-                        prv.P = now.P;
-                        prv.S = s;
+                        int u_deg = 0;
+                        for(auto &i : prv_edge_set)
+                            if(edge[i].first == u || edge[i].second == u) ++u_deg;
+                        
+                        if(!is_in_range(u, u_deg)) continue;
+                        
+                        prv.P = prv_edge_set;
                         if(W.count(prv)){
                             int val = W[prv];
                             if(val > mx){
@@ -248,127 +231,130 @@ class DCSGQ{
                             }
                         }
                         if(W_.count(prv)){
-                                int val = W_[prv];
-                                if(val > mx_){
-                                    mx_ = val;
-                                    from_state_ = prv;
-                                }
-                            }
-                        if(mx != -INF){
-                            W[now] = mx;
-                            from[now] = vector<state>{from_state};
-                            if(mx > max_value[bx]){
-                                max_value[bx] = mx;
-                                max_state[bx] = now;
+                            int val = W_[prv];
+                            if(val > mx_){
+                                mx_ = val;
+                                from_state_ = prv;
                             }
                         }
-                        if(mx_ != -INF){
-                            W_[now] = mx_;
-                            from_[now] = vector<state>{from_state_};
+                    }
+
+                    prv.S = s, prv.P = edge_set;
+                    if(W.count(prv)){
+                        int val = W[prv];
+                        if(val > mx){
+                            mx = val;
+                            from_state = prv;
                         }
-                        continue;
                     }
-                    if(v[ind] >= max_dg){
-                        st.pop();
-                        v[ind] = -1;
-                        continue;
+                    if(W_.count(prv)){
+                        int val = W_[prv];
+                        if(val > mx_){
+                            mx_ = val;
+                            from_state_ = prv;
+                        }
                     }
-                    
-                    ++v[ind];
-                    st.emplace(ind + 1);
+                    if(mx != -INF){
+                        W[now] = mx;
+                        from[now] = vector<state>{from_state};
+                        if(mx > max_value[bx]){
+                            max_value[bx] = mx;
+                            max_state[bx] = now;
+                        }
+                    }
+                    if(mx_ != -INF){
+                        W_[now] = mx_;
+                        from_[now] = vector<state>{from_state_};
+                    }
                 }
             }
         }
 
  
         void JOIN_transfer(Bag<T> bx, Bag<T> by, Bag<T> bz){ // need optimize
-            W[state(bx, set<T>(), map<T,T>())] = 0;
-            W_[state(bx, set<T>(), map<T,T>())] = 0; 
+            W[state(bx, set<T>(), set<T>())] = 0;
+            W_[state(bx, set<T>(), set<T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0,  tot = 0;
-                vector<int> v(N, -1), elm(N);
+                int N = s.size(), ind = 0, tot_sum = 0;
+                vector<int> v, u_v;//, elm(N) ;
+                set<int> edges, u_edge;
                 for(auto &i: s){
-                    elm[ind++] = i;
-                    tot += weight[i];
+                    // elm[ind++] = i;
+                    tot_sum += weight[i];
+                    for(auto &j : ntd.treeDecomposition.graph.adj[i])
+                        edges.insert(edge_id[{i, j}]);
                 }
-                state now = state(bx, s, map<T,T>());
-                stack<int> st;
-                st.push(0);
 
-                while(!st.empty()){
-                    ind = st.top();
-                    if(ind == (int)v.size()){
-                        st.pop();
-                        // transform
-                        int ind2 = 0;
-                        vector<int> v2(N, -1);
-                        stack<int> st2;
-                        st2.push(0);
-                        state py = state(by, s, map<T,T>());
-                        for(int i = 0; i < ind; ++i) py.P[elm[i]] = v[i];
-                        while(!st2.empty()){
-                            ind2 = st2.top();
-                            if(ind2 == (int)v2.size()){
-                                st2.pop();
-                                state pz = state(bz, s, map<T,T>());
-                                bool flag = 1;
-                                for(int i = 0, k; i < ind2; ++i){
-                                    pz.P[elm[i]] = v2[i];
+                for(auto &i: edges)
+                    v.emplace_back(i);
 
-                                    k = v[i] + v2[i];
-                                    for(auto &j : elm) k -= edge_weight[{elm[i], j}];
-                                    
-                                    now.P[elm[i]] = k;
-                                    if(!is_in_range(elm[i], k)) flag = 0;
-                                }
-                                if(flag){
-                                    if(W_.count(py) && W_.count(pz)){
-                                        int val = W_[py] + W_[pz] - tot;
-                                        if(val > W[now]){
-                                            W[now] = val;
-                                            from[now] = vector<state>{py, pz};
-                                            fromTag[now] = 2;
-                                            if(val > max_value[bx]){
-                                                max_value[bx] = val;
-                                                max_state[bx] = now;
-                                            }
-                                        }
-                                        val =  W_[py] + W_[pz] - tot;
-                                        if(val > W_[now]){
-                                            W_[now] = val;
-                                            from_[now] = vector<state>{py, pz};
-                                        }
-                                    }
-                                }else{
-                                    if(W_.count(py) && W_.count(pz)){
-                                        int val =W_[py] + W_[pz] - tot;
-                                        if(val > W_[now]){
-                                            W_[now] = val;
-                                            from_[now] = vector<state>{py, pz};
-                                        }
-                                    }
-                                }
-                                continue;
-                            }
-                            if(v2[ind2] >= max_dg){
-                                st2.pop();
-                                v2[ind2] = -1;
-                                continue;
-                            }
-                            ++v2[ind2];
-                            st2.emplace(ind2 + 1);
+                state now = state(bx, s, set<T>());
+                W_[now] = tot_sum;
+                                
+                int M = v.size();
+                for(int mask = 0; mask < (1 << M); ++mask){
+                    set<int> edge_set;
+                    for(int i = mask, j; i; i = (i - 1) & i){
+                        j = v[__lg((i & (-i)))];
+                        edge_set.insert(j);
+                    }
+                    state py = state(by, s, edge_set);
+                    
+                    for(int mask_z = 0; mask_z < (1 << M); ++mask_z){
+                        set<int> edge_set_z;
+                        for(int i = mask_z, j; i; i = (i - 1) & i){
+                            j = v[__lg((i & (-i)))];
+                            edge_set_z.insert(j);
                         }
-                        continue;
+                        vector<int> tmp_v;
+                        merge(edge_set.begin(), edge_set.end(), edge_set_z.begin(), edge_set_z.end(), back_inserter(tmp_v));
+                        set<int> merge_set(tmp_v.begin(), tmp_v.end());
+
+                        map<int,int> P;
+                        for(auto &i:merge_set){
+                            ++P[edge[i].first];
+                            ++P[edge[i].second];
+                        }
+                        bool condition = 1;
+                        for(auto &i:P)
+                            if(!is_in_range(i.first, i.second)){
+                                condition = 0;
+                                break;
+                            }
+                        
+                        state pz = state(bz, s, edge_set_z);
+                        if(condition){
+                            if(W_.count(py) && W_.count(pz)){
+                                int val = W_[py] + W_[pz] - tot_sum;
+                                if(val > W[now]){
+                                    W[now] = val;
+                                    from[now] = vector<state>{py, pz};
+                                    fromTag[now] = 2;
+                                    if(val > max_value[bx]){
+                                        max_value[bx] = val;
+                                        max_state[bx] = now;
+                                    }
+                                }
+                                val =  W_[py] + W_[pz] - tot_sum;
+                                if(val > W_[now]){
+                                    W_[now] = val;
+                                    from_[now] = vector<state>{py, pz};
+                                }
+                            }
+                        }else{
+                            if(W_.count(py) && W_.count(pz)){
+                                int val =W_[py] + W_[pz] - tot_sum;
+                                if(val > W_[now]){
+                                    W_[now] = val;
+                                    from_[now] = vector<state>{py, pz};
+                                }
+                            }
+                        }
                     }
-                    if(v[ind] >= max_dg){
-                        st.pop();
-                        v[ind] = -1;
-                        continue;
-                    }
-                    ++v[ind];
-                    st.emplace(ind + 1);
+
                 }
+
             }
             
         }
@@ -435,16 +421,16 @@ class DCSGQ{
                 st.pop();
             }
             
-            // cout << W.size() << ' ' << W_.size() << "\n";
+            cout << W.size() << ' ' << W_.size() << "\n";
             Bag<T> start = ntd.childrenBag[ntd.root][0];
-            set<T> ans = BackTrack(max_state[start]);
+            // set<T> ans = BackTrack(max_state[start]);
             cout << "Ans: " << max_value[start] << '\n'; 
             // cout << ans.size() << ": ";
             // for(auto &i: ans ) cout << i << ' ';
             cout << "\n";
 
-            cout << "W_:\n";
-            for(auto it = W_.begin(); it != W_.end(); ++it){
+            cout << "W:\n";
+            for(auto it = W.begin(); it != W.end(); ++it){
                 cout << "id: " << it->first.B.id << "  S: {";
                 for(auto &i : it->first.S) cout << i << ' ';
                 cout << "}  P: {";

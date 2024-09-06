@@ -38,7 +38,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase6.txt", "r", stdin);
+    freopen("testcase.txt", "r", stdin);
     // ori.add_edge(1, 2);
     // ori.add_edge(2, 3);
     // ori.add_edge(2, 7);
@@ -77,27 +77,26 @@ int main(){
     // print_graph_int(ori);
 
     int n, m;
-    DCSGQ<int> solver;
-    // vector<int> UpBound, LowBound, weight;
-    // map<pair<int, int>, int> edge_weight;
+    vector<int> UpBound, LowBound, weight;
+    map<pair<int, int>, int> edge_weight, edge_id;
+    vector<pair<int, int>> edge;
     Graph<int> ori;
     cin >> n >> m;
-    solver.n = n;
-    solver.UpBound.resize(n + 1);
-    solver.LowBound.resize(n + 1);
-    solver.weight.resize(n + 1);
-    solver.edge.resize(m + 1);
-    for(int i = 1; i <= n; ++i) cin >> solver.weight[i];
-    for(int i = 1; i <= n; ++i) cin >> solver.UpBound[i];
-    for(int i = 1; i <= n; ++i) cin >> solver.LowBound[i];
+    UpBound.resize(n + 1);
+    LowBound.resize(n + 1);
+    weight.resize(n + 1);
+    edge.resize(m + 1);
+    for(int i = 1; i <= n; ++i) cin >> weight[i];
+    for(int i = 1; i <= n; ++i) cin >> UpBound[i];
+    for(int i = 1; i <= n; ++i) cin >> LowBound[i];
     for(int x, y, z, i = 1; i <= m; ++i){
         cin >> x >> y >> z;
         ori.add_edge(x, y);
-        solver.edge_weight[{x, y}] = z;
-        solver.edge_weight[{y, x}] = z;
-        solver.edge[i] = {x, y};
-        solver.edge_id[{x, y}] = i;
-        solver.edge_id[{y, x}] = i;
+        edge_weight[{x, y}] = z;
+        edge_weight[{y, x}] = z;
+        edge[i] = {x, y};
+        edge_id[{x, y}] = i;
+        edge_id[{y, x}] = i;
     }
     TreeDecomposition<int> td(ori);
     set<int> s;
@@ -115,7 +114,14 @@ int main(){
     // cout<< ntd.treeDecomposition.isValid() << endl;
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
-    solver.ntd = ntd;
+    DCSGQ<int> solver(ntd);
+    solver.n = n;
+    solver.UpBound = UpBound;
+    solver.LowBound = LowBound;
+    solver.weight = weight;
+    solver.edge = edge;
+    solver.edge_weight = edge_weight;
+    solver.edge_id = edge_id;
     // solver.initialization();
     solver.solve();
     
