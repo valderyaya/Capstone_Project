@@ -92,19 +92,22 @@ class DCSGQ{
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
-                vector<int> v;//, elm(N);
+                vector<int> v, elm(N);
                 set<int> edges;
                 for(auto &i: s){
-                    // elm[ind++] = i;
+                    elm[ind++] = i;
                     tmp_sum += weight[i];
-                    for(auto j : ntd.treeDecomposition.graph.adj[i])
-                        edges.insert(edge_id[{i, j}]);
+                    // for(auto j : ntd.treeDecomposition.graph.adj[i])
+                    //     edges.insert(edge_id[{i, j}]);
                 }
                 state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
                 
-                for(auto &i: edges)
-                    v.emplace_back(i);
+                for(int i = 0; i < N; ++i)
+                    for(int j = i + 1; j < N; ++j)
+                        v.emplace_back(edge_id[{i, j}]);
+                // for(auto &i: edges)
+                //     v.emplace_back(i);
                     
                 int M = v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
@@ -114,8 +117,8 @@ class DCSGQ{
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
                         int x = edge[j].first, y = edge[j].second; 
-                        if(s.count(x)) ++P[x];
-                        if(s.count(y)) ++P[y];
+                        ++P[x];
+                        ++P[y];
                         if(x == u || y == u) u_edge.insert(j);
                     }
                     now.P = edge_set;
@@ -150,7 +153,7 @@ class DCSGQ{
                     set<int> sy(s);
                     sy.erase(u);
                     state prv = state(by, sy, diff);
-                    if(condition9){
+                    if(condition9 && !edge_set.empty()){
                         if(W_.count(prv)){
                             int val = W_[prv] + weight[u] ;
                             W[now] = val;
@@ -160,6 +163,16 @@ class DCSGQ{
                             if(val > max_value[bx]){
                                 max_value[bx] = val;
                                 max_state[bx] = now;
+                            }
+                            if(bx.id == 7 && now.S.size() > 1){
+                                for(auto &i:now.S) cout << i << ' ';
+                                cout << "\n";
+                                for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                                cout << "-----------" << val << "\n";
+                                for(auto &i:prv.S) cout << i << ' ';
+                                cout << "\n";
+                                for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                                cout << "\n\n\n";
                             }
                         }
                     }else{
@@ -180,19 +193,22 @@ class DCSGQ{
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
-                vector<int> v, u_v;//, elm(N) ;
+                vector<int> v, u_v, elm(N) ;
                 set<int> edges, u_edge;
                 for(auto &i: s){
-                    // elm[ind++] = i;
+                    elm[ind++] = i;
                     tmp_sum += weight[i];
-                    for(auto &j : ntd.treeDecomposition.graph.adj[i])
-                        edges.insert(edge_id[{i, j}]);
+                    // for(auto &j : ntd.treeDecomposition.graph.adj[i])
+                    //     edges.insert(edge_id[{i, j}]);
                 }
                 for(auto &i:ntd.treeDecomposition.graph.adj[u])
                     if(!s.count(i)) u_edge.insert(edge_id[{i, u}]);
 
-                for(auto &i: edges)
-                    v.emplace_back(i);
+                for(int i = 0; i < N; ++i)
+                    for(int j = i + 1; j < N; ++j)
+                        v.emplace_back(edge_id[{i, j}]);
+                // for(auto &i: edges)
+                //     v.emplace_back(i);
 
                 for(auto &i: u_edge)
                     u_v.emplace_back(i);
