@@ -25,6 +25,24 @@ class DCSGQ{
             }
         };
 
+        struct dsu{
+            vector<int> f;
+            int tot;
+            int find_(int x){return x == f[x] ? x : f[x] = find_(f[x]);}
+            void union_(int x, int y){
+                x = find_(x), y = find_(y);
+                if(x == y) return;
+                f[x] = y;
+                --tot;
+            }
+
+            dsu(int n){
+                tot = n;
+                f.resize(n + 1);
+                for(int i = 1; i <= n; ++i) f[i] = i;
+            }
+        };
+
         const int INF = 2147483647;
         vector<int> UpBound, LowBound, weight;
         map<pair<int, int>, int> edge_weight; 
@@ -92,34 +110,41 @@ class DCSGQ{
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
-                vector<int> v, elm(N);
-                set<int> edges;
+                vector<int> v;//, elm(N);
+                map<int,int> mapping;
+                set<int> edges, u_edge;
                 for(auto &i: s){
-                    elm[ind++] = i;
+                    // elm[ind++] = i;
+                    mapping[i] = ++ind;
                     tmp_sum += weight[i];
-                    // for(auto j : ntd.treeDecomposition.graph.adj[i])
-                    //     edges.insert(edge_id[{i, j}]);
+                    for(auto j : ntd.treeDecomposition.graph.adj[i])
+                        edges.insert(edge_id[{i, j}]);
                 }
                 state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
+
+                for(auto &i: ntd.treeDecomposition.graph.adj[u])
+                    if(s.count(i)) u_edge.insert(edge_id[{i, u}]);
                 
-                for(int i = 0; i < N; ++i)
-                    for(int j = i + 1; j < N; ++j)
-                        v.emplace_back(edge_id[{i, j}]);
-                // for(auto &i: edges)
-                //     v.emplace_back(i);
+                // for(int i = 0; i < N; ++i)
+                //     for(int j = i + 1; j < N; ++j)
+                //         v.emplace_back(edge_id[{i, j}]);
+                for(auto &i: edges)
+                    v.emplace_back(i);
                     
                 int M = v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
-                    set<int> edge_set, u_edge;
+                    set<int> edge_set;
                     map<int, int> P;
+                    dsu DSU(s.size());
+
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
-                        int x = edge[j].first, y = edge[j].second; 
+                        int x = edge[j].first, y = edge[j].second;
                         ++P[x];
                         ++P[y];
-                        if(x == u || y == u) u_edge.insert(j);
+                        if(s.count(x) && s.count(y)) DSU.union_(mapping[x], mapping[y]);
                     }
                     now.P = edge_set;
                     if(!s.count(u)){// u not in s
@@ -142,18 +167,19 @@ class DCSGQ{
                         continue;
                     }
                     bool condition9 = 1;
-                    for(auto it = P.begin(); it != P.end(); ++it)
-                        if(!is_in_range(it->first, it->second)){
+                    for(auto &i: s){
+                        auto it = P.find(i);
+                        if(it == P.end() || !is_in_range(it->first, it->second)){
                             condition9 = 0;
                             break;
                         }
-                    
+                    }
                     set<T> diff;
                     set_difference(edge_set.begin(), edge_set.end(), u_edge.begin(), u_edge.end(), inserter(diff, diff.end()));
                     set<int> sy(s);
                     sy.erase(u);
                     state prv = state(by, sy, diff);
-                    if(condition9 && !edge_set.empty()){
+                    if(condition9 && DSU.tot == 1 && !edge_set.empty()){
                         if(W_.count(prv)){
                             int val = W_[prv] + weight[u] ;
                             W[now] = val;
@@ -164,16 +190,16 @@ class DCSGQ{
                                 max_value[bx] = val;
                                 max_state[bx] = now;
                             }
-                            if(bx.id == 7 && now.S.size() > 1){
-                                for(auto &i:now.S) cout << i << ' ';
-                                cout << "\n";
-                                for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                                cout << "-----------" << val << "\n";
-                                for(auto &i:prv.S) cout << i << ' ';
-                                cout << "\n";
-                                for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                                cout << "\n\n\n";
-                            }
+                            // if(bx.id == 9 && now.S.size() > 1){
+                            //     for(auto &i:now.S) cout << i << ' ';
+                            //     cout << "\n";
+                            //     for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                            //     cout << "-----------" << val << "\n";
+                            //     for(auto &i:prv.S) cout << i << ' ';
+                            //     cout << "\n";
+                            //     for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                            //     cout << "\n\n\n";
+                            // }
                         }
                     }else{
                         if(W_.count(prv)){
@@ -193,22 +219,24 @@ class DCSGQ{
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tmp_sum = 0;
-                vector<int> v, u_v, elm(N) ;
+                vector<int> v, u_v;//, elm(N) ;
+                // map<int,int> mapping;
                 set<int> edges, u_edge;
                 for(auto &i: s){
-                    elm[ind++] = i;
+                    // elm[ind++] = i;
+                    // mapping[i] = ++ind;
                     tmp_sum += weight[i];
-                    // for(auto &j : ntd.treeDecomposition.graph.adj[i])
-                    //     edges.insert(edge_id[{i, j}]);
+                    for(auto &j : ntd.treeDecomposition.graph.adj[i])
+                        edges.insert(edge_id[{i, j}]);
                 }
                 for(auto &i:ntd.treeDecomposition.graph.adj[u])
-                    if(!s.count(i)) u_edge.insert(edge_id[{i, u}]);
+                    u_edge.insert(edge_id[{i, u}]);
 
-                for(int i = 0; i < N; ++i)
-                    for(int j = i + 1; j < N; ++j)
-                        v.emplace_back(edge_id[{i, j}]);
-                // for(auto &i: edges)
-                //     v.emplace_back(i);
+                // for(int i = 0; i < N; ++i)
+                //     for(int j = i + 1; j < N; ++j)
+                //         v.emplace_back(edge_id[{i, j}]);
+                for(auto &i: edges)
+                    v.emplace_back(i);
 
                 for(auto &i: u_edge)
                     u_v.emplace_back(i);
@@ -220,11 +248,12 @@ class DCSGQ{
                 for(int mask = 0; mask < (1 << M); ++mask){
                     set<int> edge_set;
                     // map<int, int> P;
+                    // dsu DSU(s.size());
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
-                        // ++P[edge[j][0]];
-                        // ++P[edge[j][1]];
+                        // int x=edge[j].first, y=edge[j].second;
+                        // if(s.count(x) && s.count(y)) DSU.union_(mapping[x], mapping[y]);
                     }
                     now.P = edge_set;
                     set<int> sy(s);
@@ -282,6 +311,16 @@ class DCSGQ{
                         if(mx > max_value[bx]){
                             max_value[bx] = mx;
                             max_state[bx] = now;
+                        }
+                        if(bx.id == 10 && now.S.size() > 0){
+                            for(auto &i:now.S) cout << i << ' ';
+                                cout << "\n";
+                                for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                                cout << "-----------" << mx << "\n";
+                                for(auto &i:from_state.S) cout << i << ' ';
+                                cout << "\n";
+                                for(auto &i:from_state.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                                cout << "\n\n\n";
                         }
                     }
                     if(mx_ != -INF){
@@ -422,7 +461,7 @@ class DCSGQ{
             while(!st.empty()){
                 Bag<T> v = st.top();
                 int tag = static_cast<int>(ntd.bagType[v]);
-                
+                // cout << v.id << endl;
                 if(tag == 0){
                     LEAF_trasfer(v);
                     st.pop();
