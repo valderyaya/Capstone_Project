@@ -50,10 +50,11 @@ class DCSGQ{
         vector<pair<int,int>> edge;
         NiceTreeDecomposition<T> ntd;
         map<state, vector<state>> from, from_;
-        // map<state, int> fromTag;
+        map<state, int> fromTag;
         map<state, int> W, W_;
         map<Bag<T>, state> max_state;
         map<Bag<T>, int> max_value;
+        map<Bag<T>, set<int>> lookup;
         state max_root_state;
         int H, Initiator, n;
         set<int> ans_vertices, ans_edge;
@@ -88,6 +89,7 @@ class DCSGQ{
 
         void LEAF_trasfer(Bag<T> b){
             T v = ntd.specialVertex[b];
+            lookup[b].insert(v);
             W[state(b, set<T>(), set<T>())] = 0;
             W_[state(b, set<T>(), set<T>())] = 0; 
             if((UpBound[v] >= 0 && 0 >= LowBound[v]) || LowBound[v] == 0){ // case 1
@@ -105,24 +107,23 @@ class DCSGQ{
 
         void INTRODUCE_transfer(Bag<T> bx, Bag<T> by){ 
             int u = ntd.specialVertex[bx];
+            lookup[bx] = lookup[by];
+            lookup[bx].insert(u);
             W[state(bx, set<T>(), set<T>())] = 0;
             W_[state(bx, set<T>(), set<T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
-                int N = s.size(), ind = 0, tmp_sum = 0;
+                int N = s.size(), tmp_sum = 0;
                 vector<int> v;//, elm(N);
-                map<int,int> mapping;
                 set<int> edges, u_edge;
                 for(auto &i: s){
-                    // elm[ind++] = i;
-                    mapping[i] = ++ind;
                     tmp_sum += weight[i];
                     for(auto j : ntd.treeDecomposition.graph.adj[i])
-                        edges.insert(edge_id[{i, j}]);
+                        if(lookup[bx].count(j)) edges.insert(edge_id[{i, j}]);
                 }
                 state now = state(bx, s, set<T>());
                 W_[now] = tmp_sum;
-
+                
                 for(auto &i: ntd.treeDecomposition.graph.adj[u])
                     if(s.count(i)) u_edge.insert(edge_id[{i, u}]);
                 
@@ -135,8 +136,8 @@ class DCSGQ{
                 int M = v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
                     set<int> edge_set;
-                    map<int, int> P;
-                    dsu DSU(s.size());
+                    map<int, int> P, mapping;
+                    int ind = 0;
 
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
@@ -144,7 +145,8 @@ class DCSGQ{
                         int x = edge[j].first, y = edge[j].second;
                         ++P[x];
                         ++P[y];
-                        if(s.count(x) && s.count(y)) DSU.union_(mapping[x], mapping[y]);
+                        if(!mapping[x]) mapping[x] = ++ind;
+                        if(!mapping[y]) mapping[y] = ++ind; 
                     }
                     now.P = edge_set;
                     if(!s.count(u)){// u not in s
@@ -159,13 +161,20 @@ class DCSGQ{
                                 max_value[bx] = val;
                                 max_state[bx] = now;
                             }
+                            fromTag[now] = 1;
                         }
                         if(W_.count(prv)){
                             W_[now] = W_[prv];
                             from_[now] = vector<state>{prv};
+                            fromTag[now] = 2;
                         }
                         continue;
                     }
+
+                    dsu DSU(mapping.size());
+                    for(auto &i : edge_set) 
+                        DSU.union_(mapping[edge[i].first], mapping[edge[i].second]);
+
                     bool condition9 = 1;
                     for(auto &i: s){
                         auto it = P.find(i);
@@ -179,7 +188,7 @@ class DCSGQ{
                     set<int> sy(s);
                     sy.erase(u);
                     state prv = state(by, sy, diff);
-                    if(condition9 && DSU.tot == 1 && !edge_set.empty()){
+                    if(condition9  && DSU.tot == 1  && !edge_set.empty()){
                         if(W_.count(prv)){
                             int val = W_[prv] + weight[u] ;
                             W[now] = val;
@@ -190,21 +199,23 @@ class DCSGQ{
                                 max_value[bx] = val;
                                 max_state[bx] = now;
                             }
-                            if(bx.id == 5 && now.S.size() > 1){
-                                for(auto &i:now.S) cout << i << ' ';
-                                cout << "\n";
-                                for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                                cout << "-----------" << val << "\n";
-                                for(auto &i:prv.S) cout << i << ' ';
-                                cout << "\n";
-                                for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                                cout << "\n\n\n";
-                            }
+                            fromTag[now] = 2;
+                            // if(bx.id == 7 && now.S.size() > 0){
+                            //     for(auto &i:now.S) cout << i << ' ';
+                            //     cout << "\n";
+                            //     for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                            //     cout << "-----------" << W_[prv] << ' ' <<  val << "\n";
+                            //     for(auto &i:prv.S) cout << i << ' ';
+                            //     cout << "\n";
+                            //     for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                            //     cout << "\n\n\n";
+                            // }
                         }
                     }else{
                         if(W_.count(prv)){
                             W_[now] = W_[prv] + weight[u];
                             from_[now] = vector<state>{prv};
+                            fromTag[now] = 2;
                         }
                     }
                 }
@@ -214,6 +225,7 @@ class DCSGQ{
 
         void FORGET_transfer(Bag<T> bx, Bag<T> by){
             int u = ntd.specialVertex[bx];
+            lookup[bx] = lookup[by];
             W[state(bx, set<T>(), set<T>())] = 0;
             W_[state(bx, set<T>(), set<T>())] = 0; 
             vector<set<int>> ss = get_subset(bx.vertices);
@@ -227,7 +239,7 @@ class DCSGQ{
                     // mapping[i] = ++ind;
                     tmp_sum += weight[i];
                     for(auto &j : ntd.treeDecomposition.graph.adj[i])
-                        edges.insert(edge_id[{i, j}]);
+                        if(lookup[bx].count(j)) edges.insert(edge_id[{i, j}]);
                 }
                 for(auto &i:ntd.treeDecomposition.graph.adj[u])
                     u_edge.insert(edge_id[{i, u}]);
@@ -245,7 +257,7 @@ class DCSGQ{
                 W_[now] = tmp_sum;  
                                 
                 int M = v.size(), uM = u_v.size();
-                for(int mask = 0; mask < (1 << M); ++mask){
+                for(int mask = 1; mask < (1 << M); ++mask){
                     set<int> edge_set;
                     map<int, int> P;
                     // dsu DSU(s.size());
@@ -264,12 +276,13 @@ class DCSGQ{
                     state prv = state(by, sy, set<T>()), from_state, from_state_;
                     int mx = -INF, mx_ = -INF;
 
-                    for(int u_mask = 0; u_mask < (1 << uM); ++u_mask){ // OPT_II
+                    for(int u_mask = 1; u_mask < (1 << uM); ++u_mask){ // OPT_II
                         set<int> prv_edge_set(edge_set);
                         for(int i = u_mask, j; i; i = (i - 1) & i){
                             j = u_v[__lg(i & (-i))];
                             prv_edge_set.insert(j);
                         }
+                        // if(edge_set.empty()) continue;
                         int u_deg = 0;
                         map<int,int> prvP;
                         for(auto &i : prv_edge_set){
@@ -323,7 +336,8 @@ class DCSGQ{
                             max_value[bx] = mx;
                             max_state[bx] = now;
                         }
-                        // if(bx.id == 10 && now.S.size() > 0){
+                        fromTag[now] = 1;
+                        // if(bx.id == 6 && now.S.size() > 0){
                         //     for(auto &i:now.S) cout << i << ' ';
                         //         cout << "\n";
                         //         for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
@@ -337,6 +351,7 @@ class DCSGQ{
                     if(mx_ != -INF){
                         W_[now] = mx_;
                         from_[now] = vector<state>{from_state_};
+                        fromTag[now] = 2;
                     }
                 }
             }
@@ -346,42 +361,52 @@ class DCSGQ{
         void JOIN_transfer(Bag<T> bx, Bag<T> by, Bag<T> bz){ // need optimize
             W[state(bx, set<T>(), set<T>())] = 0;
             W_[state(bx, set<T>(), set<T>())] = 0; 
+            vector<int> tmp_v;
+            merge(lookup[by].begin(), lookup[by].end(), lookup[bz].begin(), lookup[bz].end(), back_inserter(tmp_v));
+            set<int> merge_set(tmp_v.begin(), tmp_v.end());
+            lookup[bx] = merge_set;
             vector<set<int>> ss = get_subset(bx.vertices);
             for(auto &s : ss){
                 int N = s.size(), ind = 0, tot_sum = 0;
-                vector<int> v, u_v;//, elm(N) ;
-                set<int> edges, u_edge;
+                vector<int> v_y, v_z;//, elm(N) ;
+                set<int> edges_y, edges_z;
                 for(auto &i: s){
                     // elm[ind++] = i;
                     tot_sum += weight[i];
-                    for(auto &j : ntd.treeDecomposition.graph.adj[i])
-                        edges.insert(edge_id[{i, j}]);
+                    for(auto &j : ntd.treeDecomposition.graph.adj[i]){
+                        if(lookup[by].count(j)) edges_y.insert(edge_id[{i, j}]);
+                        if(lookup[bz].count(j)) edges_z.insert(edge_id[{i, j}]);
+                    }
                 }
 
-                for(auto &i: edges)
-                    v.emplace_back(i);
+                for(auto &i: edges_y)
+                    v_y.emplace_back(i);
+
+                for(auto &i: edges_z)
+                    v_z.emplace_back(i);
 
                 state now = state(bx, s, set<T>());
                 W_[now] = tot_sum;
                                 
-                int M = v.size();
+                int M = v_y.size(), MM = v_z.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
                     set<int> edge_set;
                     for(int i = mask, j; i; i = (i - 1) & i){
-                        j = v[__lg((i & (-i)))];
+                        j = v_y[__lg((i & (-i)))];
                         edge_set.insert(j);
                     }
                     state py = state(by, s, edge_set);
                     
-                    for(int mask_z = 0; mask_z < (1 << M); ++mask_z){
+                    for(int mask_z = 0; mask_z < (1 << MM); ++mask_z){
                         set<int> edge_set_z;
                         for(int i = mask_z, j; i; i = (i - 1) & i){
-                            j = v[__lg((i & (-i)))];
+                            j = v_z[__lg((i & (-i)))];
                             edge_set_z.insert(j);
                         }
-                        vector<int> tmp_v;
+                        tmp_v.clear();
                         merge(edge_set.begin(), edge_set.end(), edge_set_z.begin(), edge_set_z.end(), back_inserter(tmp_v));
-                        set<int> merge_set(tmp_v.begin(), tmp_v.end());
+                        merge_set.clear();
+                        merge_set = set<int>(tmp_v.begin(), tmp_v.end());
                         now.P = merge_set;
 
                         map<int,int> P;
@@ -403,13 +428,12 @@ class DCSGQ{
                                 if(val > W[now]){
                                     W[now] = val;
                                     from[now] = vector<state>{py, pz};
-                                    // fromTag[now] = 2;
+                                    fromTag[now] = 2;
                                     if(val > max_value[bx]){
                                         max_value[bx] = val;
                                         max_state[bx] = now;
                                     }
                                 }
-                                val =  W_[py] + W_[pz] - tot_sum;
                                 if(val > W_[now]){
                                     W_[now] = val;
                                     from_[now] = vector<state>{py, pz};
@@ -421,6 +445,7 @@ class DCSGQ{
                                 if(val > W_[now]){
                                     W_[now] = val;
                                     from_[now] = vector<state>{py, pz};
+                                    fromTag[now] = 2;
                                 }
                             }
                         }
@@ -516,9 +541,9 @@ class DCSGQ{
                 cout << it->first.id << " :   " << max_value[it->first] << "\n";
             }
 
-
             // cout << "W:\n";
-            // for(auto it = W.begin(); it != W.end(); ++it){
+            // for(auto it = W.begin(); it != W.end(); ++it){ 
+            //     if(it->first.B.id != 7) continue;
             //     cout << "id: " << it->first.B.id << "  S: {";
             //     for(auto &i : it->first.S) cout << i << ' ';
             //     cout << "}  P: {";
@@ -526,50 +551,58 @@ class DCSGQ{
             //     cout <<"}   ";
             //     cout << it->second << "\n";
 
-            //     if(!from_.count(it->first)) continue;
-            //     auto f = from_[it->first];
+            //     if(!from_.count(it->first) && !from.count(it->first)) continue;
+                
+            //     auto f = fromTag[it->first] == 2 ? from_[it->first] : from[it->first];
+            //     int val = fromTag[it->first] == 2 ? W_[f[0]] : W[f[0]];
             //     cout << "from:   ";
             //     cout << "id: " << f[0].B.id << "  S: {";
             //     for(auto &i : f[0].S) cout << i << ' ';
             //     cout << "}  P: {";
             //     for(auto &i : f[0].P) cout << i << ", ";
-            //     cout <<"}\n--------------\n";
+            //     cout << "}  " << val << "\n--------------\n";
             //     if(f.size() == 2){
+            //         val = fromTag[it->first] == 2 ? W_[f[1]] : W[f[1]];
             //         cout << "from:   ";
             //         cout << "id: " << f[1].B.id << "  S: {";
             //         for(auto &i : f[1].S) cout << i << ' ';
             //         cout << "}  P: {";
             //         for(auto &i : f[1].P) cout << i  << ", ";
-            //         cout <<"}\n--------------\n";
+            //         cout <<"}  " << val << "\n--------------\n";
             //     }
             // }
 
-            // cout << "W_:\n";
-            // for(auto it = W_.begin(); it != W_.end(); ++it){
-            //     cout << "id: " << it->first.B.id << "  S: {";
-            //     for(auto &i : it->first.S) cout << i << ' ';
-            //     cout << "}  P: {";
-            //     for(auto &i : it->first.P) cout << i << ", ";
-            //     cout <<"}   ";
-            //     cout << it->second << "\n";
+            cout << "W_:\n";
+            for(auto it = W_.begin(); it != W_.end(); ++it){ 
+                if(it->first.B.id != 6) continue;
+                cout << "id: " << it->first.B.id << "  S: {";
+                for(auto &i : it->first.S) cout << i << ' ';
+                cout << "}  P: {";
+                for(auto &i : it->first.P) cout << i << ", ";
+                cout <<"}   ";
+                cout << it->second << "\n";
 
-            //     if(!from_.count(it->first)) continue;
-            //     auto f = from_[it->first];
-            //     cout << "from:   ";
-            //     cout << "id: " << f[0].B.id << "  S: {";
-            //     for(auto &i : f[0].S) cout << i << ' ';
-            //     cout << "}  P: {";
-            //     for(auto &i : f[0].P) cout << i << ", ";
-            //     cout <<"}\n--------------\n";
-            //     if(f.size() == 2){
-            //         cout << "from:   ";
-            //         cout << "id: " << f[1].B.id << "  S: {";
-            //         for(auto &i : f[1].S) cout << i << ' ';
-            //         cout << "}  P: {";
-            //         for(auto &i : f[1].P) cout << i  << ", ";
-            //         cout <<"}\n--------------\n";
-            //     }
-            // }
+                if(!from_.count(it->first) && !from.count(it->first)) continue;
+                
+                auto f = fromTag[it->first] == 2 ? from_[it->first] : from[it->first];
+                int val = fromTag[it->first] == 2 ? W_[f[0]] : W[f[0]];
+                cout << "from:   ";
+                cout << "id: " << f[0].B.id << "  S: {";
+                for(auto &i : f[0].S) cout << i << ' ';
+                cout << "}  P: {";
+                for(auto &i : f[0].P) cout << i << ", ";
+                cout << "}  " << val << "\n--------------\n";
+                if(f.size() == 2){
+                    val = fromTag[it->first] == 2 ? W_[f[1]] : W[f[1]];
+                    cout << "from:   ";
+                    cout << "id: " << f[1].B.id << "  S: {";
+                    for(auto &i : f[1].S) cout << i << ' ';
+                    cout << "}  P: {";
+                    for(auto &i : f[1].P) cout << i  << ", ";
+                    cout <<"}  " << val << "\n--------------\n";
+                }
+            }
+        
         }
 
         
