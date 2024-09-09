@@ -297,8 +297,9 @@ class DCSGQ{
                                 condition = 0;
                                 break;
                             }
+                        if(!condition) continue;
                         prv.P = prv_edge_set;
-                        if(W.count(prv) && condition){
+                        if(W.count(prv)){
                             int val = W[prv];
                             if(val > mx){
                                 mx = val;
