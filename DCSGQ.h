@@ -190,16 +190,16 @@ class DCSGQ{
                                 max_value[bx] = val;
                                 max_state[bx] = now;
                             }
-                            // if(bx.id == 9 && now.S.size() > 1){
-                            //     for(auto &i:now.S) cout << i << ' ';
-                            //     cout << "\n";
-                            //     for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                            //     cout << "-----------" << val << "\n";
-                            //     for(auto &i:prv.S) cout << i << ' ';
-                            //     cout << "\n";
-                            //     for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                            //     cout << "\n\n\n";
-                            // }
+                            if(bx.id == 5 && now.S.size() > 1){
+                                for(auto &i:now.S) cout << i << ' ';
+                                cout << "\n";
+                                for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                                cout << "-----------" << val << "\n";
+                                for(auto &i:prv.S) cout << i << ' ';
+                                cout << "\n";
+                                for(auto &i:prv.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                                cout << "\n\n\n";
+                            }
                         }
                     }else{
                         if(W_.count(prv)){
@@ -242,16 +242,19 @@ class DCSGQ{
                     u_v.emplace_back(i);
 
                 state now = state(bx, s, set<T>());
-                W_[now] = tmp_sum;
+                W_[now] = tmp_sum;  
                                 
                 int M = v.size(), uM = u_v.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
                     set<int> edge_set;
-                    // map<int, int> P;
+                    map<int, int> P;
                     // dsu DSU(s.size());
                     for(int i = mask, j; i; i = (i - 1) & i){
                         j = v[__lg((i & (-i)))];
                         edge_set.insert(j);
+                        if(s.count(edge[j].first)) ++P[edge[j].first];
+                        if(s.count(edge[j].second)) ++P[edge[j].second];
+                        
                         // int x=edge[j].first, y=edge[j].second;
                         // if(s.count(x) && s.count(y)) DSU.union_(mapping[x], mapping[y]);
                     }
@@ -268,13 +271,21 @@ class DCSGQ{
                             prv_edge_set.insert(j);
                         }
                         int u_deg = 0;
-                        for(auto &i : prv_edge_set)
+                        map<int,int> prvP;
+                        for(auto &i : prv_edge_set){
                             if(edge[i].first == u || edge[i].second == u) ++u_deg;
-                        
+                            if(s.count(edge[i].first)) ++prvP[edge[i].first];
+                            if(s.count(edge[i].second)) ++prvP[edge[i].second];
+                        }
                         if(!is_in_range(u, u_deg)) continue;
-                        
+                        bool condition = 1;
+                        for(auto &i:s) 
+                            if(P[i] != prvP[i]){
+                                condition = 0;
+                                break;
+                            }
                         prv.P = prv_edge_set;
-                        if(W.count(prv)){
+                        if(W.count(prv) && condition){
                             int val = W[prv];
                             if(val > mx){
                                 mx = val;
@@ -312,16 +323,16 @@ class DCSGQ{
                             max_value[bx] = mx;
                             max_state[bx] = now;
                         }
-                        if(bx.id == 10 && now.S.size() > 0){
-                            for(auto &i:now.S) cout << i << ' ';
-                                cout << "\n";
-                                for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                                cout << "-----------" << mx << "\n";
-                                for(auto &i:from_state.S) cout << i << ' ';
-                                cout << "\n";
-                                for(auto &i:from_state.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
-                                cout << "\n\n\n";
-                        }
+                        // if(bx.id == 10 && now.S.size() > 0){
+                        //     for(auto &i:now.S) cout << i << ' ';
+                        //         cout << "\n";
+                        //         for(auto &i:now.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                        //         cout << "-----------" << mx << "\n";
+                        //         for(auto &i:from_state.S) cout << i << ' ';
+                        //         cout << "\n";
+                        //         for(auto &i:from_state.P) cout << edge[i].first << ' ' << edge[i].second<<"\n";
+                        //         cout << "\n\n\n";
+                        // }
                     }
                     if(mx_ != -INF){
                         W_[now] = mx_;
