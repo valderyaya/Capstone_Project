@@ -211,7 +211,7 @@ class DCSGQ{
                             //     cout << "\n\n\n";
                             // }
                         }
-                    }else{
+                    }else if(DSU.tot == 1){
                         if(W_.count(prv)){
                             W_[now] = W_[prv] + weight[u];
                             from_[now] = vector<state>{prv};
@@ -387,7 +387,7 @@ class DCSGQ{
                     v_z.emplace_back(i);
 
                 state now = state(bx, s, set<T>());
-                W_[now] = tot_sum;
+                // W_[now] = tot_sum;
                                 
                 int M = v_y.size(), MM = v_z.size();
                 for(int mask = 0; mask < (1 << M); ++mask){
@@ -406,7 +406,6 @@ class DCSGQ{
                         }
                         tmp_v.clear();
                         merge(edge_set.begin(), edge_set.end(), edge_set_z.begin(), edge_set_z.end(), back_inserter(tmp_v));
-                        merge_set.clear();
                         merge_set = set<int>(tmp_v.begin(), tmp_v.end());
                         now.P = merge_set;
 
@@ -416,11 +415,13 @@ class DCSGQ{
                             ++P[edge[i].second];
                         }
                         bool condition = 1;
-                        for(auto &i:P)
-                            if(!is_in_range(i.first, i.second)){
+                        for(auto &i: s){
+                            auto it = P.find(i);
+                            if(it == P.end() || !is_in_range(it->first, it->second)){
                                 condition = 0;
                                 break;
                             }
+                        }
                         
                         state pz = state(bz, s, edge_set_z);
                         if(condition){
@@ -461,30 +462,32 @@ class DCSGQ{
         void BackTrack(state now){
             // cout << now.B.id << endl;
             int tag = static_cast<int>(ntd.bagType[now.B]);
-            if(tag == 0){
+            if(tag == 0){ // leaf
                 for(auto &i : now.B.vertices) ans_vertices.insert(i);
-                return ; // leaf
+                return;
             }
+            for(auto &i : now.S)
+                ans_vertices.insert(i);
+            for(auto &i : now.P)
+                ans_edge.insert(i);
 
-            if(tag == 1){ // introduce
-                int u = ntd.specialVertex[now.B];
-                if(now.S.count(u))
-                    ans_vertices.insert(u);
-                for(auto &i : now.P)
-                    ans_edge.insert(i);
-                
-                if(from.count(now)) BackTrack(from[now][0]);
+            if(tag < 3){
+                int fm = fromTag[now];
+                if(fm == 1 && from.count(now))
+                    BackTrack(from[now][0]);
+                else if(fm == 2 && from_.count(now))
+                    BackTrack(from_[now][0]); 
                 return;
-            }else if(tag == 2){//forget
-                for(auto &i : now.P)
-                    ans_edge.insert(i);
-                if(from.count(now)) BackTrack(from[now][0]);
-                return;
+
             }else if(tag == 3){//join
-                for(auto &i : now.P)
-                    ans_edge.insert(i);
-                BackTrack(from[now][0]);
-                BackTrack(from[now][1]);
+                int fm = fromTag[now];
+                if(fm == 1 && from.count(now)){
+                    BackTrack(from[now][0]);
+                    BackTrack(from[now][1]);
+                }else if(fm == 2 && from_.count(now)){
+                    BackTrack(from_[now][0]);
+                    BackTrack(from_[now][1]); 
+                }
                 return;
             }
         }
@@ -527,24 +530,22 @@ class DCSGQ{
                 st.pop();
             }
             
-            cout << W.size() << ' ' << W_.size() << "\n";
+            // cout << W.size() << ' ' << W_.size() << "\n";
             Bag<T> start = ntd.childrenBag[ntd.root][0];
             cout << "Ans: " << max_value[start] << '\n';
-            // BackTrack(max_state[start]);
-            // for(auto &i: ans_vertices) cout << i << ' ';
-            // cout << "\n";
-            // for(auto &i: ans_edge) cout << i << ' ';
-            // cout << ans.size() << ": ";
-            // for(auto &i: ans ) cout << i << ' ';
+            BackTrack(max_state[start]);
+            for(auto &i: ans_vertices) cout << i << ' ';
+            cout << "\n";
+            for(auto &i: ans_edge) cout << i << ' ';
             cout << "\n";
 
-            for(auto it = ntd.treeDecomposition.tree.adj.begin(); it != ntd.treeDecomposition.tree.adj.end(); ++it){
-                cout << it->first.id << " :   " << max_value[it->first] << "\n";
-            }
+            // for(auto it = ntd.treeDecomposition.tree.adj.begin(); it != ntd.treeDecomposition.tree.adj.end(); ++it){
+            //     cout << it->first.id << " :   " << max_value[it->first] << "\n";
+            // }
 
             // cout << "W:\n";
             // for(auto it = W.begin(); it != W.end(); ++it){ 
-            //     if(it->first.B.id != 7) continue;
+            //     if(it->first.B.id != 2) continue;
             //     cout << "id: " << it->first.B.id << "  S: {";
             //     for(auto &i : it->first.S) cout << i << ' ';
             //     cout << "}  P: {";
@@ -573,36 +574,36 @@ class DCSGQ{
             //     }
             // }
 
-            cout << "W_:\n";
-            for(auto it = W_.begin(); it != W_.end(); ++it){ 
-                if(it->first.B.id != 6) continue;
-                cout << "id: " << it->first.B.id << "  S: {";
-                for(auto &i : it->first.S) cout << i << ' ';
-                cout << "}  P: {";
-                for(auto &i : it->first.P) cout << i << ", ";
-                cout <<"}   ";
-                cout << it->second << "\n";
+            // cout << "W_:\n";
+            // for(auto it = W_.begin(); it != W_.end(); ++it){ 
+            //     if(it->first.B.id != 4) continue;
+            //     cout << "id: " << it->first.B.id << "  S: {";
+            //     for(auto &i : it->first.S) cout << i << ' ';
+            //     cout << "}  P: {";
+            //     for(auto &i : it->first.P) cout << i << ", ";
+            //     cout <<"}   ";
+            //     cout << it->second << "\n";
 
-                if(!from_.count(it->first) && !from.count(it->first)) continue;
+            //     if(!from_.count(it->first) && !from.count(it->first)) continue;
                 
-                auto f = fromTag[it->first] == 2 ? from_[it->first] : from[it->first];
-                int val = fromTag[it->first] == 2 ? W_[f[0]] : W[f[0]];
-                cout << "from:   ";
-                cout << "id: " << f[0].B.id << "  S: {";
-                for(auto &i : f[0].S) cout << i << ' ';
-                cout << "}  P: {";
-                for(auto &i : f[0].P) cout << i << ", ";
-                cout << "}  " << val << "\n--------------\n";
-                if(f.size() == 2){
-                    val = fromTag[it->first] == 2 ? W_[f[1]] : W[f[1]];
-                    cout << "from:   ";
-                    cout << "id: " << f[1].B.id << "  S: {";
-                    for(auto &i : f[1].S) cout << i << ' ';
-                    cout << "}  P: {";
-                    for(auto &i : f[1].P) cout << i  << ", ";
-                    cout <<"}  " << val << "\n--------------\n";
-                }
-            }
+            //     auto f = fromTag[it->first] == 2 ? from_[it->first] : from[it->first];
+            //     int val = fromTag[it->first] == 2 ? W_[f[0]] : W[f[0]];
+            //     cout << "from:   ";
+            //     cout << "id: " << f[0].B.id << "  S: {";
+            //     for(auto &i : f[0].S) cout << i << ' ';
+            //     cout << "}  P: {";
+            //     for(auto &i : f[0].P) cout << i << ", ";
+            //     cout << "}  " << val << "\n--------------\n";
+            //     if(f.size() == 2){
+            //         val = fromTag[it->first] == 2 ? W_[f[1]] : W[f[1]];
+            //         cout << "from:   ";
+            //         cout << "id: " << f[1].B.id << "  S: {";
+            //         for(auto &i : f[1].S) cout << i << ' ';
+            //         cout << "}  P: {";
+            //         for(auto &i : f[1].P) cout << i  << ", ";
+            //         cout <<"}  " << val << "\n--------------\n";
+            //     }
+            // }
         
         }
 

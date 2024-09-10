@@ -38,43 +38,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase4.txt", "r", stdin);
-    // ori.add_edge(1, 2);
-    // ori.add_edge(2, 3);
-    // ori.add_edge(2, 7);
-    // ori.add_edge(2, 8);
-    // ori.add_edge(3, 6);
-    // ori.add_edge(3, 5);
-    // ori.add_edge(5, 6);
-    // ori.add_edge(3, 4);
-    // ori.add_edge(3, 8);
-
-    // ori.add_edge(1, 2);
-    // ori.add_edge(2, 3);
-    // ori.add_edge(2, 7);
-    // ori.add_edge(2, 8);
-    // ori.add_edge(3, 6);
-    // ori.add_edge(3, 5);
-    // ori.add_edge(5, 6);
-    // ori.add_edge(3, 4);
-    // ori.add_edge(3, 8);
-    
-    
-    // ori.add_edge(1, 2);
-    // ori.add_edge(2, 4);
-    // ori.add_edge(1, 3);
-    // ori.add_edge(3, 2);
-    // ori.add_edge(5, 2);
-    // ori.add_edge(4, 5);
-    // ori.add_edge(7, 2);
-    // ori.add_edge(3, 7);
-    // ori.add_edge(3, 6);
-    // ori.add_edge(6, 7);
-    // ori.add_edge(5, 7);
-    // ori.add_edge(5, 8);
-    // ori.add_edge(7, 8);
-
-    // print_graph_int(ori);
+    freopen("testcase.txt", "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -109,7 +73,7 @@ int main(){
 
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
-    print_graph_bag(ntd.treeDecomposition.tree);
+    // print_graph_bag(ntd.treeDecomposition.tree);
     ntd.classify_bags();
     // cout<< ntd.treeDecomposition.isValid() << endl;
     // print_bags_type(ntd);
