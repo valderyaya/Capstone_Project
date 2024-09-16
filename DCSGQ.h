@@ -45,7 +45,7 @@ class DCSGQ{
 
         const int INF = 2147483647;
         vector<int> UpBound, LowBound, weight;
-        map<pair<int, int>, int> edge_weight; 
+        // map<pair<int, int>, int> edge_weight; 
         map<pair<int, int>, int> edge_id;
         vector<pair<int,int>> edge;
         NiceTreeDecomposition<T> ntd;

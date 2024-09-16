@@ -42,7 +42,7 @@ int main(){
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
-    map<pair<int, int>, int> edge_weight, edge_id;
+    map<pair<int, int>, int> edge_id; //, edge_weight;
     vector<pair<int, int>> edge;
     Graph<int> ori;
     cin >> n >> m;
@@ -56,8 +56,8 @@ int main(){
     for(int x, y, z, i = 1; i <= m; ++i){
         cin >> x >> y >> z;
         ori.add_edge(x, y);
-        edge_weight[{x, y}] = z;
-        edge_weight[{y, x}] = z;
+        // edge_weight[{x, y}] = z;
+        // edge_weight[{y, x}] = z;
         edge[i] = {x, y};
         edge_id[{x, y}] = i;
         edge_id[{y, x}] = i;
@@ -84,7 +84,7 @@ int main(){
     solver.LowBound = LowBound;
     solver.weight = weight;
     solver.edge = edge;
-    solver.edge_weight = edge_weight;
+    // solver.edge_weight = edge_weight;
     solver.edge_id = edge_id;
     // solver.initialization();
     solver.solve();
