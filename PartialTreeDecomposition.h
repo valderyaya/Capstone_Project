@@ -11,9 +11,27 @@ template<typename T>
 class PartialTreeDecomposition{
     public:
         TreeDecomposition<T> treeDecomposition;
+        int D;
 
-        PartialTreeDecomposition(const TreeDecomposition<T> &orignal){
+        PartialTreeDecomposition(const TreeDecomposition<T> &orignal, int d){
             treeDecomposition = orignal;
+            D = d;
+        }
+
+        int get_start_node(){
+            int node, deg = 0;
+            for(auto it = treeDecomposition.graph.begin(); it != treeDecomposition.graph.end(); ++it){
+                if(it->second.size() > deg){
+                    deg = it->second.size();
+                    node = it -> first;
+                }
+            }
+            return node;
+        }
+
+        void dijkstra(){
+            priority_queue<pair<int, int>> pq;
+            
         }
 
         bool in_another_bag(T u, T v, Bag<T> b){
