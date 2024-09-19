@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include "TreeDecomposition.h"
 #include "NiceTreeDecomposition.h"
 #include "MinimalSeparator.h"
@@ -12,6 +10,7 @@ class PartialTreeDecomposition{
     public:
         TreeDecomposition<T> treeDecomposition;
         int D;
+        const int inf = 1e9+8;
 
         PartialTreeDecomposition(const TreeDecomposition<T> &orignal, int d){
             treeDecomposition = orignal;
@@ -29,9 +28,26 @@ class PartialTreeDecomposition{
             return node;
         }
 
-        void dijkstra(){
+        set<int> dijkstra(){
+            int n = treeDecomposition.n, st = get_start_node(), D = d/2;
             priority_queue<pair<int, int>> pq;
-            
+            vector<int> dis(n + 1);
+            for(int i = 1; i <= n; ++i) dis[i] = inf;
+            dis[st] = 0;
+            pq.push({dis[st], st});
+            while(!pq.empty()){
+                auto [d, x] = pq.top(); pq.pop();
+                if(d != dis[x]) continue;
+                for(auto &i = treeDecomposition.graph[x])
+                    if(dis[i] > d + 1){
+                        dis[i] = d + 1;
+                        pq.push({dis[i], i});
+                    }
+            }
+            set<int> ret;
+            for(int i = 1; i <= n; ++i)
+                if(dis[i] <= D) ret.insert(i);
+            return ret;
         }
 
         bool in_another_bag(T u, T v, Bag<T> b){
