@@ -23,7 +23,6 @@ class NiceTreeDecomposition{
         map<Bag<T>, T> secondSpecialVertex;
         Bag<T> root;
         map<Bag<T>, vector<Bag<T>>> childrenBag;
-        set<Bag<T>> partial_check; // for partial tree decomposition
         bool veryNice;
 
         NiceTreeDecomposition(const TreeDecomposition<T> &orignal){
@@ -40,7 +39,7 @@ class NiceTreeDecomposition{
             return treeDecomposition.tree.adj.begin()->first;
         }
 
-        Bag<T> make_nice(Bag<T> suitableRoot, Bag<T> tag = Bag<T>()){
+        Bag<T> make_nice(Bag<T> suitableRoot){
             //Graph<Bag<T>> tree = &treeDecomposition.tree;
             Bag<T> rt = treeDecomposition.create_Bag(set<T>());
             treeDecomposition.tree.add_vertex(rt);
@@ -49,17 +48,13 @@ class NiceTreeDecomposition{
             stack<Bag<T>> st;
             set<Bag<T>> vis;
             st.push(rt);
-            Bag<T> ept = Bag<T>();
             // int c = 0;
             while(!st.empty()){
                 // cout << ++c <<endl;
                 Bag<T> v =st.top();
                 st.pop();
                 vis.insert(v);
-                if(tag != ept) {
-                    partial_check.insert(v);
-                    if(v == tag) continue;
-                }
+                
                 int cnt = 0;
                 Bag<T> ww;
                 for(auto &i : treeDecomposition.tree.adj[v])
@@ -122,7 +117,7 @@ class NiceTreeDecomposition{
                 if(it->first.vertices.empty() && it->first != rt) 
                     empt.emplace_back(it->first);
             for(auto &i : empt) treeDecomposition.tree.remove_vertex(i);
-            if(tag == ept) treeDecomposition.renumber();
+            treeDecomposition.renumber();
             return treeDecomposition.tree.adj.begin()->first;
             // return rt;
         }
