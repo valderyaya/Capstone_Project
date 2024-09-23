@@ -38,7 +38,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase4.txt", "r", stdin);
+    freopen("input.txt", "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -65,34 +65,34 @@ int main(){
     TreeDecomposition<int> td(ori);
 
 
-    PartialTreeDecomposition<int> ptd(td, 2);
-    ptd.build_partial_treedecomposition();
+    // PartialTreeDecomposition<int> ptd(td, 2);
+    // ptd.build_partial_treedecomposition();
     
-    // set<int> s;
-    // for(int i = 1; i <= n; ++i) s.insert(i);
-    // td.create_Bag(s);
-    // ImproveTreeDecomposition itd(td);
-    // itd.improve_decomposition();
-    // // cout<< itd.treeDecomposition.isValid() << endl;
-    // // print_graph_bag(itd.treeDecomposition.tree);
+    set<int> s;
+    for(int i = 1; i <= n; ++i) s.insert(i);
+    td.create_Bag(s);
+    ImproveTreeDecomposition itd(td);
+    itd.improve_decomposition();
+    // cout<< itd.treeDecomposition.isValid() << endl;
+    // print_graph_bag(itd.treeDecomposition.tree);
 
-    // NiceTreeDecomposition ntd(itd.treeDecomposition);
-    // ntd.root = ntd.make_nice(ntd.findSuitableRoot());
-    // // print_graph_bag(ntd.treeDecomposition.tree);
-    // ntd.classify_bags();
-    // // cout<< ntd.treeDecomposition.isValid() << endl;
-    // // print_bags_type(ntd);
-    // // ntd.compute_tree_index();
-    // DCSGQ<int> solver(ntd);
-    // solver.n = n;
-    // solver.UpBound = UpBound;
-    // solver.LowBound = LowBound;
-    // solver.weight = weight;
-    // solver.edge = edge;
-    // // solver.edge_weight = edge_weight;
-    // solver.edge_id = edge_id;
-    // // solver.initialization();
-    // solver.solve();
+    NiceTreeDecomposition ntd(itd.treeDecomposition);
+    ntd.root = ntd.make_nice(ntd.findSuitableRoot());
+    // print_graph_bag(ntd.treeDecomposition.tree);
+    ntd.classify_bags();
+    // cout<< ntd.treeDecomposition.isValid() << endl;
+    // print_bags_type(ntd);
+    // ntd.compute_tree_index();
+    DCSGQ<int> solver(ntd);
+    solver.n = n;
+    solver.UpBound = UpBound;
+    solver.LowBound = LowBound;
+    solver.weight = weight;
+    solver.edge = edge;
+    // solver.edge_weight = edge_weight;
+    solver.edge_id = edge_id;
+    // solver.initialization();
+    solver.solve();
     
     cout << "------------Finish--------------\n";
     return 0;
@@ -117,3 +117,5 @@ int main(){
 
 //     return 0;
 // }
+
+// g++ -mcmodel=medium -Ofast -o solver ./main.cpp
