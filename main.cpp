@@ -38,7 +38,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("input.txt", "r", stdin);
+    freopen("testcase10.txt", "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -78,15 +78,22 @@ int main(){
     itd.improve_decomposition();
     // cout<< itd.treeDecomposition.isValid() << endl;
     // print_graph_bag(itd.treeDecomposition.tree);
-    
+
+    if(!itd.treeDecomposition.isValid()){
+        return 1;
+    }
     cout << "-----------end Imporve--------------\n";
 
     cout << "---------Start Nice Tree--------------\n";
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
-    // print_graph_bag(ntd.treeDecomposition.tree);
     ntd.classify_bags();
-    // cout<< ntd.treeDecomposition.isValid() << endl;
+    // print_graph_bag(ntd.treeDecomposition.tree);
+
+    if(!ntd.treeDecomposition.isValid()){
+        // cout<< ntd.treeDecomposition.isValid() << endl;
+        return 1;
+    }
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
 

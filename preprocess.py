@@ -2,7 +2,7 @@ import csv
 import random
 from collections import deque
 
-random.seed(24)
+random.seed(42)
 edges = []
 sub_edges = []
 adj = {}
@@ -20,12 +20,12 @@ def get_max_deg_node(t = 1):
     else:
         return random.randint(1, len(adj))
 
-def get_sub_graph(H = 2):
+def get_sub_graph(H = 2, Max_node = 1e9, t = 1):
     global edges
     global adj
     global nodes
     global sub_edges
-    st = get_max_deg_node()
+    st = get_max_deg_node(t)
     dis = {}
     dis[st] = 0
     queue = deque([st])
@@ -35,6 +35,8 @@ def get_sub_graph(H = 2):
     while queue:
         x = queue.popleft()
         nodes.add(x)
+        if len(nodes) >= Max_node:
+            break
         for v in adj[x]:
             if v not in vis:
                 dis[v] = dis[x] + 1
@@ -66,7 +68,7 @@ with open('musae_DE_edges.csv', mode='r', newline='') as f:
 
 
 
-get_sub_graph()
+get_sub_graph(H = 2, Max_node = 30, t = 1)
 mapping = {}
 tot = 1
 for x in nodes:
@@ -74,11 +76,11 @@ for x in nodes:
     tot += 1
 
 
-with open('input.txt', mode='w', encoding='utf-8') as f:
+with open('input2.txt', mode='w', encoding='utf-8') as f:
     f.write(str(len(nodes)) + ' ' + str(len(sub_edges)) + '\n')
-    f.write(' '.join(map(str, [random.randint(1, 100) for _ in range(len(nodes))])))
+    f.write(' '.join(map(str, [random.randint(1, 100) for _ in range(len(nodes))])) + '\n')
     random_integers =  [random.randint(1, 10) for _ in range(len(nodes))]
-    f.write(' '.join(map(str, random_integers)))
-    f.write(' '.join(map(str, [random.randint(0, x) for x in random_integers])))
+    f.write(' '.join(map(str, random_integers)) + '\n')
+    f.write(' '.join(map(str, [random.randint(0, min(x, 2)) for x in random_integers])) + '\n')
     for x, y in sub_edges:
-        f.write(str(mapping[x]) + ' ' + str(mapping[y]) + '\n')
+        f.write(str(mapping[x]) + ' ' + str(mapping[y]) + ' 1\n')

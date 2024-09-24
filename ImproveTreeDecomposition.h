@@ -54,9 +54,9 @@ class ImproveTreeDecomposition{
 
         void improve_decomposition(){
             bool flag = 1;
-            //int cnt =0;
+            int cnt =0;
             do{
-                //cout<<++cnt<<endl;
+                cout<<++cnt<<endl;
                 flag = 0;
                 for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it){
                     Graph<T> g = to_graph(it->first);
@@ -66,8 +66,8 @@ class ImproveTreeDecomposition{
                         break;
                     }
                 }
-                // print_graph_bag(treeDecomposition.tree);
-                // cout << "----------------" << endl;
+                print_graph_bag(treeDecomposition.tree);
+                cout << "----------------" << endl;
             }while(flag);
         }
 
@@ -99,8 +99,20 @@ class ImproveTreeDecomposition{
                     bool containsALL =  includes(s.begin(), s.end(), bx.vertices.begin(), bx.vertices.end());
                     if(containsALL) treeDecomposition.tree.add_edge(bset, bx);
                 }
+
+                // for(Bag<T> bx : neighbours){
+                //     set<T> interset(sep);
+                //     for(auto &i : bx.vertices)
+                //         if(interset.count(i)) interset.erase(i);
+                    
+                    
+                //     bool containsALL =  includes(s.begin(), s.end(), interset.begin(), interset.end());
+                //     if(containsALL) treeDecomposition.tree.add_edge(bset, bx);
+                // }
             }
 
+            // for(Bag<T> bx : neighbours)
+            //     treeDecomposition.tree.add_edge(bsep, bx);
         }
 };
 
