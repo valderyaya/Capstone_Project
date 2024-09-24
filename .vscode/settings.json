@@ -26,6 +26,8 @@
         "stack": "cpp",
         "any": "cpp",
         "ranges": "cpp",
-        "stacktrace": "cpp"
+        "stacktrace": "cpp",
+        "queue": "cpp",
+        "xutility": "cpp"
     }
 }

@@ -16,7 +16,7 @@ def get_max_deg_node(t = 1):
             if len(v) > mx:
                 mx = len(v)
                 node = x
-        return x
+        return node
     else:
         return random.randint(1, len(adj))
 

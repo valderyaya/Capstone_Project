@@ -64,10 +64,13 @@ int main(){
     }
     TreeDecomposition<int> td(ori);
 
-
+    // cout << "---------Start Partial--------------\n";
     // PartialTreeDecomposition<int> ptd(td, 2);
     // ptd.build_partial_treedecomposition();
-    
+    // cout << "----------end Partial---------------\n";
+
+
+    cout << "---------Start Imporve--------------\n";
     set<int> s;
     for(int i = 1; i <= n; ++i) s.insert(i);
     td.create_Bag(s);
@@ -75,7 +78,10 @@ int main(){
     itd.improve_decomposition();
     // cout<< itd.treeDecomposition.isValid() << endl;
     // print_graph_bag(itd.treeDecomposition.tree);
+    
+    cout << "-----------end Imporve--------------\n";
 
+    cout << "---------Start Nice Tree--------------\n";
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
     // print_graph_bag(ntd.treeDecomposition.tree);
@@ -83,6 +89,11 @@ int main(){
     // cout<< ntd.treeDecomposition.isValid() << endl;
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
+
+    cout << "----------end Nice Tree-------------\n";
+
+
+    cout << "----------Start solve--------------\n";
     DCSGQ<int> solver(ntd);
     solver.n = n;
     solver.UpBound = UpBound;
