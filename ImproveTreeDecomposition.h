@@ -77,6 +77,10 @@ class ImproveTreeDecomposition{
             for(auto &i: treeDecomposition.tree.adj[b]) neighbours.insert(i);
 
             set<T> sep = MinimalSeparator<T>(g).compute();
+            cout << "sep: ";
+            for(auto &i:sep) cout << i << ' ';
+            cout << endl;
+            
             for(T v : sep) g.remove_vertex(v);
 
             vector<set<T>> cs =  g.get_connected_components();

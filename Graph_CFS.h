@@ -16,7 +16,7 @@ class Graph_CFS{
             cur.resize(n+5);
             dis.resize(n+5);
             
-            int nn=n*n+n+n;
+            int nn=(n+1)*(n+2);
             to.resize(std::min(nn, max_edge));
             nxt.resize(std::min(nn, max_edge));
             weigh.resize(std::min(nn, max_edge));
