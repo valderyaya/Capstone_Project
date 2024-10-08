@@ -28,6 +28,8 @@
         "ranges": "cpp",
         "stacktrace": "cpp",
         "queue": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "bitset": "cpp",
+        "format": "cpp"
     }
 }

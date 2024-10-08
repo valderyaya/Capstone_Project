@@ -50,7 +50,7 @@ class MinimalSeparator{
             for(int i = 1; i <= n; ++i)
                 for(int j = i + 1; j <= n; ++j)
                     if(!graph.is_adjacent(mq[i], mq[j])){
-                        // cout << mq[i] << ' ' << mq[j] <<endl;
+                        cout << mq[i] << ' ' << mq[j] <<endl;
                         Dinic dc(g, i, j + n, 2*n);
                         map<int, set<pair<int,int>>> another_g = dc.cal();
 
