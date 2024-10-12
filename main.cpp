@@ -9,12 +9,12 @@ using namespace std;
 #include "TreeDecomposition.h"
 #include "NiceTreeDecomposition.h"
 #include "ImproveTreeDecomposition.h"
-#include "Graph_CFS.h"
+// #include "Graph_CFS.h"
 // #include "Dinic.h"
 #include "Debug_func.h"
 #include "DCSGQ.h"
-#include "MaximumClique.h"
-#include "PartialTreeDecomposition.h"
+// #include "MaximumClique.h"
+// #include "PartialTreeDecomposition.h"
 
 
 // int main(){ // for partial tree decomposition

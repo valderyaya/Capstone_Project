@@ -1,7 +1,7 @@
 #pragma once
 #include "TreeDecomposition.h"
 #include "NiceTreeDecomposition.h"
-#include "MinimalSeparator_2.h"
+#include "MinimalSeparator.h"
 #include "MaximumClique.h"
 #include "Debug_func.h"
 

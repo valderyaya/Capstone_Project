@@ -4,7 +4,7 @@
 #pragma once
 
 #include "TreeDecomposition.h"
-#include "MinimalSeparator_2.h"
+#include "MinimalSeparator_3.h"
 
 template<typename T>
 class ImproveTreeDecomposition{
@@ -107,7 +107,7 @@ class ImproveTreeDecomposition{
                 // for(Bag<T> bx : neighbours){
                 //     set<T> interset(sep);
                 //     for(auto &i : bx.vertices)
-                //         if(interset.count(i)) interset.erase(i);
+                //         interset.erase(i);
                     
                     
                 //     bool containsALL =  includes(s.begin(), s.end(), interset.begin(), interset.end());
