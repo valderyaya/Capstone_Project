@@ -51,6 +51,40 @@ class ImproveTreeDecomposition{
                     }
             return g;
         }
+        void Impore_Decomposition(){
+            set<int> s;
+            int n= treeDecomposition.graph.adj.size();
+            for(int i = 1; i <= n; ++i) s.insert(i);
+            Bag<T> init(s, -1);
+
+            stack<pair<Bag<T>, Bag<T>>> st;
+            st.push({init, Bag<T>()});
+            
+            while(!st.empty()){
+                auto [cur, par] = st.top(); st.pop();
+                Graph<T> g = to_graph(cur);
+                if(g.isClique()){
+                    Bag<T> curb = treeDecomposition.create_Bag(cur.vertices);
+                    if(par != Bag<T>()){
+                        treeDecomposition.tree.add_edge(par, curb);
+                    }
+                    continue;
+                }
+                set<T> sep = MinimalSeparator<T>(g).compute();
+                for(T v : sep) g.remove_vertex(v);
+                vector<set<T>> cs =  g.get_connected_components();
+                Bag<T> bsep = treeDecomposition.create_Bag(sep);
+                if(par != Bag<T>()){
+                    
+                    treeDecomposition.tree.add_edge(par, bsep);
+                }
+                for(set<T> s : cs){
+                    for(auto &i: sep) s.insert(i);
+                    Bag<T> bset(s, -1);
+                    st.push({bset ,bsep});
+                }
+            }
+        }
 
         void improve_decomposition(){
             bool flag = 1;

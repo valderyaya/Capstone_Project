@@ -38,7 +38,7 @@ using namespace std;
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase10.txt", "r", stdin);
+    freopen("testcase9.txt", "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -71,11 +71,11 @@ int main(){
 
 
     cout << "---------Start Imporve--------------\n";
-    set<int> s;
-    for(int i = 1; i <= n; ++i) s.insert(i);
-    td.create_Bag(s);
+    // set<int> s;
+    // for(int i = 1; i <= n; ++i) s.insert(i);
+    // td.create_Bag(s);
     ImproveTreeDecomposition itd(td);
-    itd.improve_decomposition();
+    itd.Impore_Decomposition();
     // cout<< itd.treeDecomposition.isValid() << endl;
     // print_graph_bag(itd.treeDecomposition.tree);
 
