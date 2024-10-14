@@ -4,7 +4,7 @@
 #pragma once
 
 #include "TreeDecomposition.h"
-#include "MinimalSeparator_3.h"
+#include "MinimalSeparator.h"
 
 template<typename T>
 class ImproveTreeDecomposition{
