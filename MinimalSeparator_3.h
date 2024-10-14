@@ -36,11 +36,12 @@ class MinimalSeparator{
             for(int st = 1; st <= n; ++st)
                 for(int ed = st + 1; ed <= n; ++ed)
                     if(!graph.is_adjacent(mq[st], mq[ed])){
+                        // cout << mq[st] << ' ' << mq[ed] << endl;
                         Dinic dinic(n, st, ed);
                         for(auto it = graph.adj.begin(); it != graph.adj.end(); ++it){
                             int x = it->first;
                             for(auto &u: it->second)
-                                dinic.setGraph(x, u);
+                                dinic.setGraph(mp[x], mp[u]);
                         }
                         // for(int i=1;i<=n;++i)
                         //     for(int j=1;j<=n;++j)

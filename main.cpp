@@ -17,28 +17,10 @@ using namespace std;
 // #include "PartialTreeDecomposition.h"
 
 
-// int main(){ // for partial tree decomposition
-//     Graph<int> ori;
-//     ori.add_edge(1, 2);
-//     ori.add_edge(1, 3);
-//     ori.add_edge(1, 5);
-//     ori.add_edge(2, 3);
-//     ori.add_edge(2, 4);
-//     ori.add_edge(2, 5);
-//     ori.add_edge(3, 4);
-//     ori.add_edge(3, 5);
-//     ori.add_edge(4, 5);
-
-//     TreeDecomposition<int> td(ori);
-
-//     PartialTreeDecomposition<int> ptd(td);
-//     ptd.build_partial_treedecomposition();
-// }
-
 int main(){
     cout << "------------Start--------------\n";
 
-    freopen("testcase9.txt", "r", stdin);
+    freopen("testcase10.txt", "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -71,11 +53,16 @@ int main(){
 
 
     cout << "---------Start Imporve--------------\n";
-    // set<int> s;
-    // for(int i = 1; i <= n; ++i) s.insert(i);
-    // td.create_Bag(s);
+    
+    // ImproveTreeDecomposition itd(td);
+    // itd.Impore_Decomposition();
+    
+    set<int> s;
+    for(int i = 1; i <= n; ++i) s.insert(i);
+    td.create_Bag(s);
     ImproveTreeDecomposition itd(td);
-    itd.Impore_Decomposition();
+    itd.improve_decomposition();
+
     // cout<< itd.treeDecomposition.isValid() << endl;
     // print_graph_bag(itd.treeDecomposition.tree);
 
@@ -117,23 +104,5 @@ int main(){
 }
 
 
-// int main(){ // for maximum clique
-//     cout << "start---" << endl;
-//     MaximumClique<int> solver(5);
-//     solver.add_edge(1, 2);
-//     solver.add_edge(1, 3);
-//     solver.add_edge(1, 5);
-//     solver.add_edge(2, 3);
-//     solver.add_edge(2, 4);
-//     // solver.add_edge(2, 5);
-//     solver.add_edge(3, 4);
-//     solver.add_edge(3, 5);
-//     solver.add_edge(4, 5);
-    
-//     cout << solver.maximum_clique() << endl;
-//     for(auto &i:solver.ans) cout << i << ' ';
-
-//     return 0;
-// }
 
 // g++ -mcmodel=medium -Ofast -o solver ./main.cpp

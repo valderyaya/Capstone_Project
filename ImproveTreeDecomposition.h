@@ -51,46 +51,47 @@ class ImproveTreeDecomposition{
                     }
             return g;
         }
-        void Impore_Decomposition(){
-            set<int> s;
-            int n= treeDecomposition.graph.adj.size();
-            for(int i = 1; i <= n; ++i) s.insert(i);
-            Bag<T> init(s, -1);
 
-            stack<pair<Bag<T>, Bag<T>>> st;
-            st.push({init, Bag<T>()});
+        // void Impore_Decomposition(){
+        //     set<int> s;
+        //     int n= treeDecomposition.graph.adj.size();
+        //     for(int i = 1; i <= n; ++i) s.insert(i);
+        //     Bag<T> init(s, -1);
+
+        //     stack<pair<Bag<T>, Bag<T>>> st;
+        //     st.push({init, Bag<T>()});
             
-            while(!st.empty()){
-                auto [cur, par] = st.top(); st.pop();
-                Graph<T> g = to_graph(cur);
-                if(g.isClique()){
-                    Bag<T> curb = treeDecomposition.create_Bag(cur.vertices);
-                    if(par != Bag<T>()){
-                        treeDecomposition.tree.add_edge(par, curb);
-                    }
-                    continue;
-                }
-                set<T> sep = MinimalSeparator<T>(g).compute();
-                for(T v : sep) g.remove_vertex(v);
-                vector<set<T>> cs =  g.get_connected_components();
-                Bag<T> bsep = treeDecomposition.create_Bag(sep);
-                if(par != Bag<T>()){
+        //     while(!st.empty()){
+        //         auto [cur, par] = st.top(); st.pop();
+        //         Graph<T> g = to_graph(cur);
+        //         if(g.isClique()){
+        //             Bag<T> curb = treeDecomposition.create_Bag(cur.vertices);
+        //             if(par != Bag<T>()){
+        //                 treeDecomposition.tree.add_edge(par, curb);
+        //             }
+        //             continue;
+        //         }
+        //         set<T> sep = MinimalSeparator<T>(g).compute();
+        //         for(T v : sep) g.remove_vertex(v);
+        //         vector<set<T>> cs =  g.get_connected_components();
+        //         Bag<T> bsep = treeDecomposition.create_Bag(sep);
+        //         if(par != Bag<T>()){
                     
-                    treeDecomposition.tree.add_edge(par, bsep);
-                }
-                for(set<T> s : cs){
-                    for(auto &i: sep) s.insert(i);
-                    Bag<T> bset(s, -1);
-                    st.push({bset ,bsep});
-                }
-            }
-        }
+        //             treeDecomposition.tree.add_edge(par, bsep);
+        //         }
+        //         for(set<T> s : cs){
+        //             for(auto &i: sep) s.insert(i);
+        //             Bag<T> bset(s, -1);
+        //             st.push({bset ,bsep});
+        //         }
+        //     }
+        // }
 
         void improve_decomposition(){
             bool flag = 1;
             int cnt =0;
             do{
-                cout<<++cnt<<endl;
+                // cout<<++cnt<<endl;
                 flag = 0;
                 for(auto it = treeDecomposition.tree.adj.begin(); it != treeDecomposition.tree.adj.end(); ++it){
                     Graph<T> g = to_graph(it->first);
@@ -100,8 +101,8 @@ class ImproveTreeDecomposition{
                         break;
                     }
                 }
-                print_graph_bag(treeDecomposition.tree);
-                cout << "----------------" << endl;
+                // print_graph_bag(treeDecomposition.tree);
+                // cout << "----------------" << endl;
             }while(flag);
         }
 
@@ -111,9 +112,9 @@ class ImproveTreeDecomposition{
             for(auto &i: treeDecomposition.tree.adj[b]) neighbours.insert(i);
 
             set<T> sep = MinimalSeparator<T>(g).compute();
-            cout << "sep: ";
-            for(auto &i:sep) cout << i << ' ';
-            cout << endl;
+            // cout << "sep: ";
+            // for(auto &i:sep) cout << i << ' ';
+            // cout << endl;
             
             for(T v : sep) g.remove_vertex(v);
 
@@ -123,7 +124,7 @@ class ImproveTreeDecomposition{
 
             Bag<T> bsep = treeDecomposition.create_Bag(sep);
             treeDecomposition.tree.add_vertex(bsep);
-
+            int cnt = 0;
             for(set<T> s : cs){
                 for(auto &i: sep) s.insert(i);
                 Bag<T> bset = treeDecomposition.create_Bag(s);
@@ -135,7 +136,7 @@ class ImproveTreeDecomposition{
                     // set_intersection(sep.begin(), sep.end(), bx.vertices.begin(), bx.vertices.end(), inserter(interset, interset.begin()));
 
                     bool containsALL =  includes(s.begin(), s.end(), bx.vertices.begin(), bx.vertices.end());
-                    if(containsALL) treeDecomposition.tree.add_edge(bset, bx);
+                    if(containsALL && cnt < 1) ++cnt, treeDecomposition.tree.add_edge(bset, bx);
                 }
 
                 // for(Bag<T> bx : neighbours){
