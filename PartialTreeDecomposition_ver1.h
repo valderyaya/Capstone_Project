@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include "TreeDecomposition.h"
 #include "NiceTreeDecomposition.h"
 #include "MinimalSeparator.h"
