@@ -2,10 +2,6 @@
 using namespace std;
 #include "Bag.h"
 #include "Graph.h"
-#include<unordered_map>
-#include<unordered_set>
-#include<map>
-#include<set>
 #include "TreeDecomposition.h"
 #include "NiceTreeDecomposition.h"
 #include "ImproveTreeDecomposition.h"
@@ -18,9 +14,15 @@ using namespace std;
 
 
 int main(){
+    ios::sync_with_stdio(0),cin.tie(0);
+
     cout << "------------Start--------------\n";
 
-    freopen("testcase10.txt", "r", stdin);
+    string file;
+    cin >> file; 
+    const char *cstr = file.c_str();
+    // freopen("testcase10.txt", "r", stdin);
+    freopen(cstr, "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -52,7 +54,7 @@ int main(){
     // cout << "----------end Partial---------------\n";
 
 
-    cout << "---------Start Imporve--------------\n";
+    // cout << "---------Start Imporve--------------\n";
     
     // ImproveTreeDecomposition itd(td);
     // itd.Impore_Decomposition();
@@ -69,9 +71,9 @@ int main(){
     if(!itd.treeDecomposition.isValid()){
         return 1;
     }
-    cout << "-----------end Imporve--------------\n";
+    // cout << "-----------end Imporve--------------\n";
 
-    cout << "---------Start Nice Tree--------------\n";
+    // cout << "---------Start Nice Tree--------------\n";
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
     ntd.classify_bags();
@@ -84,10 +86,10 @@ int main(){
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
 
-    cout << "----------end Nice Tree-------------\n";
+    // cout << "----------end Nice Tree-------------\n";
 
 
-    cout << "----------Start solve--------------\n";
+    // cout << "----------Start solve--------------\n";
     DCSGQ<int> solver(ntd);
     solver.n = n;
     solver.UpBound = UpBound;
