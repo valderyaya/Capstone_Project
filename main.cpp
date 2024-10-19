@@ -16,13 +16,15 @@ using namespace std;
 int main(){
     ios::sync_with_stdio(0),cin.tie(0);
 
-    cout << "------------Start--------------\n";
+    bool debug = 0;
 
-    string file;
-    cin >> file; 
-    const char *cstr = file.c_str();
-    // freopen("testcase10.txt", "r", stdin);
-    freopen(cstr, "r", stdin);
+    if(debug) cout << "------------Start--------------\n";
+
+    freopen("./Testcases/Initial/testcase10.txt", "r", stdin);
+    // string file;
+    // cin >> file; 
+    // const char *cstr = file.c_str();
+    // freopen(cstr, "r", stdin);
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
@@ -54,7 +56,7 @@ int main(){
     // cout << "----------end Partial---------------\n";
 
 
-    // cout << "---------Start Imporve--------------\n";
+    if(debug) cout << "---------Start Imporve--------------\n";
     
     // ImproveTreeDecomposition itd(td);
     // itd.Impore_Decomposition();
@@ -62,6 +64,9 @@ int main(){
     set<int> s;
     for(int i = 1; i <= n; ++i) s.insert(i);
     td.create_Bag(s);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
     ImproveTreeDecomposition itd(td);
     itd.improve_decomposition();
 
@@ -71,9 +76,9 @@ int main(){
     if(!itd.treeDecomposition.isValid()){
         return 1;
     }
-    // cout << "-----------end Imporve--------------\n";
+    if(debug) cout << "-----------end Imporve--------------\n";
 
-    // cout << "---------Start Nice Tree--------------\n";
+    if(debug) cout << "---------Start Nice Tree--------------\n";
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
     ntd.classify_bags();
@@ -86,10 +91,10 @@ int main(){
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
 
-    // cout << "----------end Nice Tree-------------\n";
+    if(debug) cout << "----------end Nice Tree-------------\n";
 
 
-    // cout << "----------Start solve--------------\n";
+    if(debug) cout << "----------Start solve--------------\n";
     DCSGQ<int> solver(ntd);
     solver.n = n;
     solver.UpBound = UpBound;
@@ -100,8 +105,11 @@ int main(){
     solver.edge_id = edge_id;
     // solver.initialization();
     solver.solve();
-    
-    cout << "------------Finish--------------\n";
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+    cout << "Time: " << duration.count() << "\n";
+
+    if(debug) cout << "------------Finish--------------\n";
     return 0;
 }
 
