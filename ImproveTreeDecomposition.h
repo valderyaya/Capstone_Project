@@ -89,7 +89,7 @@ class ImproveTreeDecomposition{
 
         void improve_decomposition(){
             bool flag = 1;
-            int cnt =0;
+            // int cnt =0;
             do{
                 // cout<<++cnt<<endl;
                 flag = 0;
@@ -131,13 +131,19 @@ class ImproveTreeDecomposition{
                 treeDecomposition.tree.add_vertex(bset);
                 treeDecomposition.tree.add_edge(bset, bsep);
                 
+                vector<Bag<T>> tmp;
                 for(Bag<T> bx : neighbours){
                     // set<T> interset;
                     // set_intersection(sep.begin(), sep.end(), bx.vertices.begin(), bx.vertices.end(), inserter(interset, interset.begin()));
 
                     bool containsALL =  includes(s.begin(), s.end(), bx.vertices.begin(), bx.vertices.end());
-                    if(containsALL && cnt < 1) ++cnt, treeDecomposition.tree.add_edge(bset, bx);
+                    // if(containsALL && cnt < 1) ++cnt, treeDecomposition.tree.add_edge(bset, bx);
+                    if(containsALL){
+                        treeDecomposition.tree.add_edge(bset, bx);
+                        tmp.emplace_back(bx);
+                    }
                 }
+                for(auto &it:tmp) neighbours.erase(it);
 
                 // for(Bag<T> bx : neighbours){
                 //     set<T> interset(sep);

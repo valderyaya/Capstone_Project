@@ -18,12 +18,15 @@ int main(){
 
     bool debug = 0;
 
-    if(debug) cout << "------------Start--------------\n";
+    if(debug) cout << "------------Start--------------"<<endl;
 
-    freopen("./Testcases/Initial/testcase10.txt", "r", stdin);
+    // freopen("./Testcases/Initial/testcase4.txt", "r", stdin);
+
     // string file;
-    // cin >> file; 
+    // cin >> file;
+    // cout << file << endl; 
     // const char *cstr = file.c_str();
+    // printf("%s\n", cstr);
     // freopen(cstr, "r", stdin);
 
     int n, m;
@@ -56,7 +59,7 @@ int main(){
     // cout << "----------end Partial---------------\n";
 
 
-    if(debug) cout << "---------Start Imporve--------------\n";
+    if(debug) cout << "---------Start Imporve--------------"<<endl;
     
     // ImproveTreeDecomposition itd(td);
     // itd.Impore_Decomposition();
@@ -76,9 +79,9 @@ int main(){
     if(!itd.treeDecomposition.isValid()){
         return 1;
     }
-    if(debug) cout << "-----------end Imporve--------------\n";
+    if(debug) cout << "-----------end Imporve--------------"<<endl;
 
-    if(debug) cout << "---------Start Nice Tree--------------\n";
+    if(debug) cout << "---------Start Nice Tree--------------"<<endl;
     NiceTreeDecomposition ntd(itd.treeDecomposition);
     ntd.root = ntd.make_nice(ntd.findSuitableRoot());
     ntd.classify_bags();
@@ -91,10 +94,10 @@ int main(){
     // print_bags_type(ntd);
     // ntd.compute_tree_index();
 
-    if(debug) cout << "----------end Nice Tree-------------\n";
+    if(debug) cout << "----------end Nice Tree-------------"<<endl;
 
 
-    if(debug) cout << "----------Start solve--------------\n";
+    if(debug) cout << "----------Start solve--------------"<<endl;
     DCSGQ<int> solver(ntd);
     solver.n = n;
     solver.UpBound = UpBound;
@@ -109,7 +112,7 @@ int main(){
     std::chrono::duration<double> duration = end - start;
     cout << "Time: " << duration.count() << "\n";
 
-    if(debug) cout << "------------Finish--------------\n";
+    if(debug) cout << "------------Finish--------------"<<endl;
     return 0;
 }
 
