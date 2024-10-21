@@ -8,7 +8,7 @@ using namespace std;
 // #include "Graph_CFS.h"
 // #include "Dinic.h"
 #include "Debug_func.h"
-#include "DCSGQ.h"
+#include "DCSGQ_ver1.h"
 // #include "MaximumClique.h"
 // #include "PartialTreeDecomposition.h"
 
@@ -16,11 +16,11 @@ using namespace std;
 int main(){
     ios::sync_with_stdio(0),cin.tie(0);
 
-    bool debug = 0;
+    bool debug = 1;
 
     if(debug) cout << "------------Start--------------"<<endl;
 
-    // freopen("./Testcases/Initial/testcase4.txt", "r", stdin);
+    freopen("./Testcases/Initial/testcase1.txt", "r", stdin);
 
     // string file;
     // cin >> file;
@@ -31,14 +31,14 @@ int main(){
 
     int n, m;
     vector<int> UpBound, LowBound, weight;
-    map<pair<int, int>, int> edge_id; //, edge_weight;
-    vector<pair<int, int>> edge;
+    // map<pair<int, int>, int> edge_id; //, edge_weight;
+    // vector<pair<int, int>> edge;
     Graph<int> ori;
     cin >> n >> m;
     UpBound.resize(n + 1);
     LowBound.resize(n + 1);
     weight.resize(n + 1);
-    edge.resize(m + 1);
+    // edge.resize(m + 1);
     for(int i = 1; i <= n; ++i) cin >> weight[i];
     for(int i = 1; i <= n; ++i) cin >> UpBound[i];
     for(int i = 1; i <= n; ++i) cin >> LowBound[i];
@@ -47,9 +47,9 @@ int main(){
         ori.add_edge(x, y);
         // edge_weight[{x, y}] = z;
         // edge_weight[{y, x}] = z;
-        edge[i] = {x, y};
-        edge_id[{x, y}] = i;
-        edge_id[{y, x}] = i;
+        // edge[i] = {x, y};
+        // edge_id[{x, y}] = i;
+        // edge_id[{y, x}] = i;
     }
     TreeDecomposition<int> td(ori);
 
@@ -103,9 +103,10 @@ int main(){
     solver.UpBound = UpBound;
     solver.LowBound = LowBound;
     solver.weight = weight;
-    solver.edge = edge;
+    // solver.edge = edge;
+    // solver.edge_id = edge_id;
+
     // solver.edge_weight = edge_weight;
-    solver.edge_id = edge_id;
     // solver.initialization();
     solver.solve();
     auto end = std::chrono::high_resolution_clock::now();

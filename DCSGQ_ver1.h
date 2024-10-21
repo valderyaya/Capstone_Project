@@ -36,6 +36,7 @@ class DCSGQ{
         map<Bag<T>, int> max_value;
         state max_root_state;
         int H, Initiator, n, max_dg;
+        set<int> ans_vertices; //, ans_edge;
         
         
         DCSGQ(NiceTreeDecomposition<T> &x):ntd(x){}
@@ -99,10 +100,10 @@ class DCSGQ{
                 for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
-                    tmp[i] = 0;
+                    tmp_[i] = 0;
                     tmp_sum += weight[i];
                 }
-                state now = state(bx, s, tmp);
+                state now = state(bx, s, tmp_);
                 W_[now] = tmp_sum;
                 
                 now.P = map<T,T>();
@@ -146,11 +147,13 @@ class DCSGQ{
                                         max_value[bx] = val;
                                         max_state[bx] = now;
                                     }
+                                    fromTag[now] = 2;
                                 }
                             }else if(f == v[u_idx] && !condition9)
                                 if(W_.count(prv)){
                                     W_[now] = W_[prv] + weight[u];
                                     from_[now] = vector<state>{prv};
+                                    fromTag[now] = 2;
                                 }
                         }else{ // case 1
                             state prv = state(by, s, map<T,T>());
@@ -163,8 +166,13 @@ class DCSGQ{
                                     max_value[bx] = val;
                                     max_state[bx] = now;
                                 }
+                                fromTag[now] = 1;
                             }
-                            if(W_.count(prv)) W_[now] = W_[prv], from_[now] = vector<state>{prv};
+                            if(W_.count(prv)){
+                                W_[now] = W_[prv];
+                                from_[now] = vector<state>{prv};
+                                fromTag[now] = 2;
+                            }
                         }
                         continue;
                     }
@@ -193,10 +201,10 @@ class DCSGQ{
                 for(auto &i: s){
                     if(i == u) u_idx = ind;
                     elm[ind++] = i;
-                    tmp[i] = 0;
+                    tmp_[i] = 0;
                     tmp_sum += weight[i];
                 }
-                state now = state(bx, s, tmp);
+                state now = state(bx, s, tmp_);
                 W_[now] = tmp_sum;
                 
                 now.P = map<T,T>();
@@ -240,12 +248,12 @@ class DCSGQ{
                             }
                         }
                         if(W_.count(prv)){
-                                int val = W_[prv];
-                                if(val > mx_){
-                                    mx_ = val;
-                                    from_state_ = prv;
-                                }
+                            int val = W_[prv];
+                            if(val > mx_){
+                                mx_ = val;
+                                from_state_ = prv;
                             }
+                        }
                         if(mx != -INF){
                             W[now] = mx;
                             from[now] = vector<state>{from_state};
@@ -253,10 +261,12 @@ class DCSGQ{
                                 max_value[bx] = mx;
                                 max_state[bx] = now;
                             }
+                            fromTag[now] = 1;
                         }
                         if(mx_ != -INF){
                             W_[now] = mx_;
                             from_[now] = vector<state>{from_state_};
+                            fromTag[now] = 2;
                         }
                         continue;
                     }
@@ -354,7 +364,6 @@ class DCSGQ{
                                                 max_state[bx] = now;
                                             }
                                         }
-                                        val =  W_[py] + W_[pz] - tot;
                                         if(val > W_[now]){
                                             W_[now] = val;
                                             from_[now] = vector<state>{py, pz};
@@ -366,6 +375,7 @@ class DCSGQ{
                                         if(val > W_[now]){
                                             W_[now] = val;
                                             from_[now] = vector<state>{py, pz};
+                                            fromTag[now] = 2;
                                         }
                                     }
                                 }
@@ -393,31 +403,41 @@ class DCSGQ{
             
         }
 
-        set<int> BackTrack(state now){
+        void BackTrack(state now){
             // cout << now.B.id << endl;
             int tag = static_cast<int>(ntd.bagType[now.B]);
-            if(tag == 0)
-                return now.B.vertices; // leaf
-            
-            if(tag == 1){ // introduce
-                int u = ntd.specialVertex[now.B];
-                set<T> ret = (from.count(now) ? BackTrack(from[now][0]) : set<T>());
-                if(now.S.count(u))
-                    ret.insert(u);
-                return ret;
-                
-            }else if(tag == 2){//forget
-                if(from.count(now))
-                    return BackTrack(from[now][0]);
-                return set<T>();
+            if(tag == 0){ // leaf
+                for(auto &i : now.B.vertices) ans_vertices.insert(i);
+                return;
+            }
+            for(auto &i : now.S)
+                ans_vertices.insert(i);
+            // for(auto &i : now.P)
+            //     ans_edge.insert(i);
+
+            if(tag < 3){
+                int fm = fromTag[now];
+                if(fm == 1 && from.count(now))
+                    BackTrack(from[now][0]);
+                else if(fm == 2 && from_.count(now))
+                    BackTrack(from_[now][0]); 
+                return;
+
             }else if(tag == 3){//join
-                set<T> x = BackTrack(from[now][0]), y = BackTrack(from[now][1]);
-                for(auto &i:y) x.insert(i);
-                return x;
+                int fm = fromTag[now];
+                if(fm == 1 && from.count(now)){
+                    BackTrack(from[now][0]);
+                    BackTrack(from[now][1]);
+                }else if(fm == 2 && from_.count(now)){
+                    BackTrack(from_[now][0]);
+                    BackTrack(from_[now][1]); 
+                }
+                return;
             }
         }
 
         void solve(){
+            initialization();
             stack<Bag<T>> st;
             set<Bag<T>> vis;
             st.push(ntd.root);
@@ -426,7 +446,7 @@ class DCSGQ{
             while(!st.empty()){
                 Bag<T> v = st.top();
                 int tag = static_cast<int>(ntd.bagType[v]);
-                
+                // cout << tag<<endl;
                 if(tag == 0){
                     LEAF_trasfer(v);
                     st.pop();
@@ -454,41 +474,41 @@ class DCSGQ{
                 // state tmp = max_state[v];
                 st.pop();
             }
-            
             // cout << W.size() << ' ' << W_.size() << "\n";
             Bag<T> start = ntd.childrenBag[ntd.root][0];
-            set<T> ans = BackTrack(max_state[start]);
-            cout << "Ans: " << max_value[start] << '\n'; 
-            // cout << ans.size() << ": ";
-            // for(auto &i: ans ) cout << i << ' ';
+            cout << "Ans: " << max_value[start] << '\n';
+            BackTrack(max_state[start]);
+            for(auto &i: ans_vertices) cout << i << ' ';
             cout << "\n";
+            // for(auto &i: ans_edge) cout << i << ' ';
+            // cout << "\n";
 
-            cout << "W_:\n";
-            for(auto it = W_.begin(); it != W_.end(); ++it){
-                cout << "id: " << it->first.B.id << "  S: {";
-                for(auto &i : it->first.S) cout << i << ' ';
-                cout << "}  P: {";
-                for(auto &i : it->first.P) cout << i.first << " : " <<i.second << ", ";
-                cout <<"}   ";
-                cout << it->second << "\n";
+            // cout << "W_:\n";
+            // for(auto it = W_.begin(); it != W_.end(); ++it){
+            //     cout << "id: " << it->first.B.id << "  S: {";
+            //     for(auto &i : it->first.S) cout << i << ' ';
+            //     cout << "}  P: {";
+            //     for(auto &i : it->first.P) cout << i.first << " : " <<i.second << ", ";
+            //     cout <<"}   ";
+            //     cout << it->second << "\n";
 
-                if(!from_.count(it->first)) continue;
-                auto f = from_[it->first];
-                cout << "from:   ";
-                cout << "id: " << f[0].B.id << "  S: {";
-                for(auto &i : f[0].S) cout << i << ' ';
-                cout << "}  P: {";
-                for(auto &i : f[0].P) cout << i.first << " : " <<i.second << ", ";
-                cout <<"}\n--------------\n";
-                if(f.size() == 2){
-                    cout << "from:   ";
-                    cout << "id: " << f[1].B.id << "  S: {";
-                    for(auto &i : f[1].S) cout << i << ' ';
-                    cout << "}  P: {";
-                    for(auto &i : f[1].P) cout << i.first << " : " <<i.second << ", ";
-                    cout <<"}\n--------------\n";
-                }
-            }
+            //     if(!from_.count(it->first)) continue;
+            //     auto f = from_[it->first];
+            //     cout << "from:   ";
+            //     cout << "id: " << f[0].B.id << "  S: {";
+            //     for(auto &i : f[0].S) cout << i << ' ';
+            //     cout << "}  P: {";
+            //     for(auto &i : f[0].P) cout << i.first << " : " <<i.second << ", ";
+            //     cout <<"}\n--------------\n";
+            //     if(f.size() == 2){
+            //         cout << "from:   ";
+            //         cout << "id: " << f[1].B.id << "  S: {";
+            //         for(auto &i : f[1].S) cout << i << ' ';
+            //         cout << "}  P: {";
+            //         for(auto &i : f[1].P) cout << i.first << " : " <<i.second << ", ";
+            //         cout <<"}\n--------------\n";
+            //     }
+            // }
         }
 
         
